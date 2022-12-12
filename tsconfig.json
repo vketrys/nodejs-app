@@ -4,7 +4,13 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "sourceMap": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": "src",
+    "resolveJsonModule": true,
+    "paths": {
+      "@config": ["src/config/*"],
+      "@routes": ["src/routes/*"]
+    }
   },
   "include": ["src/**/*"],
 }
