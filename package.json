@@ -9,8 +9,10 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc -w",
-    "dev": "nodemon ./dist/index.js",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "watch-ts": "tsc -w",
+    "watch-node": "nodemon ./dist/index.js",
     "lint": "eslint . --ext .ts",
     "format": "eslint . --ext .ts --fix"
   },
