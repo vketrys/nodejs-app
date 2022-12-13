@@ -10,5 +10,13 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "parserOptions": { "ecmaVersion": 2020, "sourceType": "module"},
-  "rules": {}
+  "rules": {
+    "no-console": 2,
+    "indent": ["error", "tab"],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "always-multiline"],
+    "@typescript-eslint/comma-dangle": ["error", "always-multiline"]
+  }
 }
