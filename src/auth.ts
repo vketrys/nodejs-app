@@ -8,7 +8,7 @@ import app from './config/firebase.js';
 import { responses } from './constants/responses.js';
 import { errorCodes, statusCodes } from './constants/codes.js';
 
-export const signup = async (req: Request, res: Response): Promise<Response> => {
+export const signup = async(req: Request, res: Response): Promise<Response> => {
 	try {
 		const { email, password } = req.body;
   
@@ -34,7 +34,7 @@ export const signup = async (req: Request, res: Response): Promise<Response> => 
 	}
 };
 
-export const signin = async (req: Request, res: Response): Promise<Response> => {
+export const signin = async(req: Request, res: Response): Promise<Response> => {
 	try {
 		const { email, password } = req.body;
   
