@@ -1,36 +1,40 @@
 import { 
 	getAuth, 
-	createUserWithEmailAndPassword, 
 	signInWithEmailAndPassword,
+	UserCredential,
 } from 'firebase/auth';
+import admin from 'firebase-admin';
 import { Request, Response } from 'express';
+
 import app from './config/firebase.js';
 import { responses } from './constants/responses.js';
 import { errorCodes, statusCodes } from './constants/codes.js';
 
 export const signup = async(req: Request, res: Response): Promise<Response> => {
 	try {
-		const { email, password } = req.body;
+		const { displayName, email, password, role } = req.body;
   
-		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity).json({
-				email: responses.emailRequired,
-				password: responses.passwordRequired,
-			});
+		if (!displayName || !email || !password || !role) {
+			return res.status(statusCodes.unprocessableEntity).send({ message: responses.missingFields });
 		}
-  
-		const auth = getAuth(app);
-  
-		createUserWithEmailAndPassword(auth, email, password)
-			.then((user) => {
-				return res.status(statusCodes.created).json(user);
-			});
+
+		const { uid } = await admin.auth().createUser({
+			displayName,
+			password,
+			email,
+		});
+
+		await admin.auth().setCustomUserClaims(uid, { role });
+
+		return res.status(statusCodes.created).send({ uid, email, role });
 	} catch (error) {
-		if (error.code === errorCodes.weakPassword) {
-			return res.status(statusCodes.badRequest).json({ error: error.message });
-		} else {
-			return res.status(statusCodes.internalServerError).json({ error: error.message });
-		}
+		return res
+			.status(
+				error.code === errorCodes.weakPassword ? 
+					statusCodes.badRequest : 
+					statusCodes.internalServerError,
+			)
+			.json({ error: error.message });
 	}
 };
 
@@ -48,14 +52,14 @@ export const signin = async(req: Request, res: Response): Promise<Response> => {
 		const auth = getAuth(app);
   
 		signInWithEmailAndPassword(auth, email, password)
-			.then((user) => {
-				return res.status(statusCodes.OK).json(user);
-			});
+			.then((user: UserCredential) => res.status(statusCodes.OK).json(user));
 	} catch (error) {
-		if (error.code === errorCodes.wrongPassword) {
-			return res.status(statusCodes.badRequest).json({ error: error.message });
-		} else {
-			return res.status(statusCodes.unprocessableEntity).json({ error: error.message });
-		}
+		return res
+			.status(
+				error.code === errorCodes.wrongPassword ? 
+					statusCodes.badRequest : 
+					statusCodes.internalServerError,
+			)
+			.json({ error: error.message });
 	}
 };

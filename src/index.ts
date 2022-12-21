@@ -1,12 +1,17 @@
 import express, { Express } from 'express';
+import admin from 'firebase-admin';
 import authRoutes from './routes/routes.js';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import { URL } from './constants/URL.js';
+
+admin.initializeApp();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+app.use(cors({ origin: true }));
 
 app.use(URL.ROOT, authRoutes);
 
