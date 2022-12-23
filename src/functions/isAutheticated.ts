@@ -1,6 +1,5 @@
 import admin from 'firebase-admin';
 import { Request, Response } from 'express';
-
 import { responses } from '../constants/responses.js';
 import { statusCodes } from '../constants/codes.js';
 

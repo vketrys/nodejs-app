@@ -1,5 +1,4 @@
 import express from 'express';
-
 import { isAuthenticated } from '../functions/isAutheticated.js';
 import { isAuthorized } from '../functions/isAuthorized.js';
 import { signup, signin } from '../auth.js';
@@ -17,7 +16,7 @@ router.post(URL.AUTH.SIGNIN, signin);
 //getting list of all users
 router.get(URL.USERS.GET, [
 	isAuthenticated,
-	isAuthorized({ hasRole: ['admin']}),
+	isAuthorized({ hasRole: ['admin'] }),
 	getAll,
 ]);
 
@@ -31,14 +30,14 @@ router.get(URL.USERS.PARAMS, [
 //update user information
 router.patch(URL.USERS.PARAMS, [
 	isAuthenticated,
-	isAuthorized({hasRole: ['admin'], allowSameUser: true}),
+	isAuthorized({ hasRole: ['admin'], allowSameUser: true }),
 	update,
 ]);
 
 //delete user with uid 
 router.delete(URL.USERS.PARAMS, [
 	isAuthenticated,
-	isAuthorized({hasRole: ['admin'], allowSameUser: true}),
+	isAuthorized({ hasRole: ['admin'], allowSameUser: false }),
 	remove,
 ]);
 

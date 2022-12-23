@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-
 import { statusCodes } from '../constants/codes.js';
 import { responses } from '../constants/responses.js';
 

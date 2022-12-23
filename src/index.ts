@@ -4,8 +4,12 @@ import authRoutes from './routes/routes.js';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { URL } from './constants/URL.js';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 
 admin.initializeApp();
+export const db = getFirestore();
+export const storage = getStorage();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;

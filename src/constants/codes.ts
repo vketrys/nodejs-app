@@ -8,7 +8,7 @@ export const statusCodes = {
 	forbidden: 403,
 	unauthorized: 401,
 	badRequest: 400,
-	OK: 200,
+	ok: 200,
 	created: 201,
 	noContent: 204,
 	internalServerError: 500,

@@ -5,17 +5,18 @@ import {
 } from 'firebase/auth';
 import admin from 'firebase-admin';
 import { Request, Response } from 'express';
-
 import app from './config/firebase.js';
 import { responses } from './constants/responses.js';
 import { errorCodes, statusCodes } from './constants/codes.js';
+import { Roles } from './constants/roles.js';
 
 export const signup = async(req: Request, res: Response): Promise<Response> => {
 	try {
-		const { displayName, email, password, role } = req.body;
+		const { displayName, email, password } = req.body;
+		const role = Roles.user;
   
-		if (!displayName || !email || !password || !role) {
-			return res.status(statusCodes.unprocessableEntity).send({ message: responses.missingFields });
+		if (!email || !password) {
+			return res.status(statusCodes.unprocessableEntity).send(!email ? responses.emailRequired : responses.passwordRequired);
 		}
 
 		const { uid } = await admin.auth().createUser({
@@ -51,8 +52,9 @@ export const signin = async(req: Request, res: Response): Promise<Response> => {
   
 		const auth = getAuth(app);
   
-		signInWithEmailAndPassword(auth, email, password)
-			.then((user: UserCredential) => res.status(statusCodes.OK).json(user));
+		const user: UserCredential = await signInWithEmailAndPassword(auth, email, password);
+
+		return res.status(statusCodes.ok).json(user);
 	} catch (error) {
 		return res
 			.status(
