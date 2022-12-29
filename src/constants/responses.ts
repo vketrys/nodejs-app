@@ -4,8 +4,8 @@ export const responses = {
 	missingFields: 'Missing fields',
 	unauthorized: 'Unauthorized',
 	tokenIssue: 'Something wrong with ID Token',
-	roleIssue: 'Current user dont have role',
-	permissionIssue: 'Current user dont have permissions',
+	roleIssue: 'Current user don\'t have role',
+	permissionIssue: 'Current user don\'t have permissions',
 	userRemoved: 'user was removed',
 };
 

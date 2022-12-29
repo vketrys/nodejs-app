@@ -1,9 +1,9 @@
 import express from 'express';
 import { isAuthenticated } from '../functions/isAutheticated.js';
 import { isAuthorized } from '../functions/isAuthorized.js';
-import { signup, signin } from '../auth.js';
+import { signup, signin } from '../controllers/authControllers.js';
 import { URL } from '../constants/URL.js';
-import { get, getAll, remove, update } from '../controllers.js';
+import { get, getAll, remove, update } from '../controllers/userControllers.js';
 
 const router = express.Router();
 

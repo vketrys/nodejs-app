@@ -1,8 +1,9 @@
 import { Roles } from 'constants/roles.js';
 import { Request, Response } from 'express';
 import admin from 'firebase-admin';
-import { statusCodes } from './constants/codes.js';
-import { responses } from './constants/responses.js';
+import handleError from '../utils/handleError.js';
+import { statusCodes } from '../constants/codes.js';
+import { responses } from '../constants/responses.js';
 
 export const getAll = async(req: Request, res: Response) => {
 	try {
@@ -58,15 +59,6 @@ export const remove = async(req: Request, res: Response) => {
 		return handleError(res, err);
 	}
 };
-
-interface ErrorType {
-  code: string;
-  message: string;
-}
-
-function handleError(res: Response, err: ErrorType) {
-	return res.status(statusCodes.internalServerError).send({ message: `${err.code} - ${err.message}` });
-}
 
 function mapUser(user: admin.auth.UserRecord) {
 	const customClaims = (user.customClaims || { role: '' }) as { role?: Roles };

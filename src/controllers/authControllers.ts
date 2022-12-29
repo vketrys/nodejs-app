@@ -5,10 +5,10 @@ import {
 } from 'firebase/auth';
 import admin from 'firebase-admin';
 import { Request, Response } from 'express';
-import app from './config/firebase.js';
-import { responses } from './constants/responses.js';
-import { errorCodes, statusCodes } from './constants/codes.js';
-import { Roles } from './constants/roles.js';
+import app from '../config/firebase.js';
+import { responses } from '../constants/responses.js';
+import { errorCodes, statusCodes } from '../constants/codes.js';
+import { Roles } from '../constants/roles.js';
 
 export const signup = async(req: Request, res: Response): Promise<Response> => {
 	try {

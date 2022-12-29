@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 import admin from 'firebase-admin';
-import authRoutes from './routes/routes.js';
+import authRoutes from './routes/userRoutes.js';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { URL } from './constants/URL.js';
