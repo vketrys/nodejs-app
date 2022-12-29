@@ -1,10 +1,9 @@
 import admin from 'firebase-admin';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { responses } from '../constants/responses.js';
 import { statusCodes } from '../constants/codes.js';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export const isAuthenticated = async(req: Request, res: Response, next: Function): Promise<Response> => {
+export const isAuthenticated = async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
 	const { authorization } = req.headers;
 
 	if (!authorization || !authorization.startsWith('Bearer')) {
@@ -20,17 +19,17 @@ export const isAuthenticated = async(req: Request, res: Response, next: Function
 	const token = splitedToken[1];
 
 	try {
-		const decodedToken: admin.auth.DecodedIdToken = await admin.auth().verifyIdToken(token);
+		const { uid, role, email }: admin.auth.DecodedIdToken = await admin.auth().verifyIdToken(token);
 
 		res.locals = { 
 			...res.locals,
-			uid: decodedToken.uid,
-			role: decodedToken.role,
-			email: decodedToken.email,
+			uid,
+			role,
+			email,
 		};
 
-		return next();
+		next();
 	} catch (error) {
-		return res.status(statusCodes.unauthorized).send({ message: error.message});
+		return res.status(statusCodes.internalServerError).send({ message: error.message});
 	}
 };

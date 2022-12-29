@@ -1,8 +1,9 @@
-import { Roles } from 'constants/roles.js';
 import { Request, Response } from 'express';
 import admin from 'firebase-admin';
-import { statusCodes } from './constants/codes.js';
-import { responses } from './constants/responses.js';
+import handleError from '../utils/handleError.js';
+import { statusCodes } from '../constants/codes.js';
+import { responses } from '../constants/responses.js';
+import { Roles } from '../constants/roles.js';
 
 export const getAll = async(req: Request, res: Response) => {
 	try {
@@ -27,10 +28,10 @@ export const get = async(req: Request, res: Response) => {
 };
 
 export const update = async(req: Request, res: Response) => {
+	const { id } = req.params;
+	const { displayName, password, email, role } = req.body;
+	
 	try {
-		const { id } = req.params;
-		const { displayName, password, email, role } = req.body;
-
 		if (!id || !displayName || !password || !email || !role) {
 			return res.status(statusCodes.badRequest).send({ message: responses.missingFields });
 		}
@@ -46,9 +47,9 @@ export const update = async(req: Request, res: Response) => {
 };
 
 export const remove = async(req: Request, res: Response) => {
-	try {
-		const { id } = req.params;
+	const { id } = req.params;
 
+	try {
 		const { email } = await admin.auth().getUser(id);
 
 		await admin.auth().deleteUser(id);
@@ -58,15 +59,6 @@ export const remove = async(req: Request, res: Response) => {
 		return handleError(res, err);
 	}
 };
-
-interface ErrorType {
-  code: string;
-  message: string;
-}
-
-function handleError(res: Response, err: ErrorType) {
-	return res.status(statusCodes.internalServerError).send({ message: `${err.code} - ${err.message}` });
-}
 
 function mapUser(user: admin.auth.UserRecord) {
 	const customClaims = (user.customClaims || { role: '' }) as { role?: Roles };
