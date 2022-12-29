@@ -4,4 +4,8 @@ export const URL = {
 		SIGNIN: '/signin',
 		SIGNUP: '/signup',
 	},
+	USERS: {
+		GET: '/users',
+		PARAMS: '/users/:id',
+	},
 };
