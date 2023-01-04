@@ -10,6 +10,7 @@ export const responses = {
 	missingFile: 'File must be uploaded!',
 	memeCreated: 'Meme was created successfully!',
 	memeRated: 'Meme was rated!',
+	memeUnrated: 'Your rate was removed!',
 	memeUpdated: 'Meme was updated successfully!',
 	memeDeleted: 'Meme was deleted successfully!',
 };

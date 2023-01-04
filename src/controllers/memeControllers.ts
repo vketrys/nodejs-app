@@ -71,26 +71,29 @@ export const likeMeme = async(req: Request, res: Response) => {
 	try {
 		const likeRef = db.collection(Collections.memes).doc(memeId).collection(Collections.likes);
 
-		await likeRef.add({
-			uid,
-			memeId,
-		});
-
 		const memeRef = db.collection(Collections.memes).doc(memeId);
 		const increment = admin.firestore.FieldValue.increment(count || 1);
+		const decrement = admin.firestore.FieldValue.increment(-count || -1);
 
 		const likeQuery = likeRef.where('uid', '==', uid);
 		const likeSnap = await likeQuery.get();
 
-		//добавить проверку
+		if (likeSnap.docs.length === 0) {
+			await likeRef.add({
+				uid,
+				memeId,
+			});
 
-		if (likeSnap.docs.length === 1) {
 			await memeRef.update({ likes: increment });
 		} else {
-			return res.status(statusCodes.forbidden).send({ message: likeSnap.docs.length });
+
+			likeSnap.docs.forEach((doc) => doc.ref.delete());
+			await memeRef.update({ likes: decrement });
+
+			return res.status(statusCodes.forbidden).send({ message: responses.memeUnrated });
 		}
 
-		return res.status(statusCodes.ok).send({ messga: responses.memeRated });
+		return res.status(statusCodes.ok).send({ message: responses.memeRated });
 	} catch (error) {
 		return handleError(res, error);
 	}
