@@ -131,11 +131,11 @@ export const updateMeme = async(req: Request, res: Response) => {
 		await deleteObject(mediaRef);
 
 		const snapshot = await uploadBytes(mediaRef, file.buffer);
-		const downloadURL = snapshot.ref.fullPath;
+		const mediaURL = snapshot.ref.fullPath;
 
 		await memeRef.update({ 
 			text,
-			mediaURL: downloadURL,
+			mediaURL,
 		 });
 
 		return res.status(statusCodes.ok).send({ message: responses.memeUpdated });
@@ -149,6 +149,12 @@ export const deleteMeme = async(req: Request, res: Response) => {
 
 	try {
 		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeSnap = await memeRef.get();
+		const fileName = await memeSnap.data().mediaURL;
+
+		const mediaRef = ref(storage, fileName);
+
+		await deleteObject(mediaRef);
 
 		await memeRef.delete();
 
