@@ -123,12 +123,14 @@ export const updateMeme = async(req: Request, res: Response) => {
 
 	try {
 		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeSnap = await memeRef.get();
+		const currentFileName = await memeSnap.data().mediaURL;
 
-		const fileName = `${uid}/${memeId}.${fileType}`;
+		const newFileName = `${uid}/${memeId}.${fileType}`;
 
-		const mediaRef = ref(storage, fileName);
+		const mediaRef = ref(storage, newFileName);
 
-		await deleteObject(mediaRef);
+		await deleteObject(ref(storage, currentFileName));
 
 		const snapshot = await uploadBytes(mediaRef, file.buffer);
 		const mediaURL = snapshot.ref.fullPath;

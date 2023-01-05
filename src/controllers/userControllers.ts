@@ -29,15 +29,14 @@ export const get = async(req: Request, res: Response) => {
 
 export const update = async(req: Request, res: Response) => {
 	const { id } = req.params;
-	const { displayName, password, email, role } = req.body;
+	const { displayName, password, email } = req.body;
 	
 	try {
-		if (!id || !displayName || !password || !email || !role) {
+		if (!displayName || !password || !email) {
 			return res.status(statusCodes.badRequest).send({ message: responses.missingFields });
 		}
 
 		await admin.auth().updateUser(id, { displayName, password, email });
-		await admin.auth().setCustomUserClaims(id, { role });
 		const user = await admin.auth().getUser(id);
 
 		return res.status(statusCodes.ok).send({ user: mapUser(user) });
