@@ -1,9 +1,9 @@
-import { Roles } from 'constants/roles.js';
 import { Request, Response } from 'express';
 import admin from 'firebase-admin';
 import handleError from '../utils/handleError.js';
 import { statusCodes } from '../constants/codes.js';
 import { responses } from '../constants/responses.js';
+import { Roles } from '../constants/roles.js';
 
 export const getAll = async(req: Request, res: Response) => {
 	try {
@@ -28,16 +28,15 @@ export const get = async(req: Request, res: Response) => {
 };
 
 export const update = async(req: Request, res: Response) => {
+	const { id } = req.params;
+	const { displayName, password, email } = req.body;
+	
 	try {
-		const { id } = req.params;
-		const { displayName, password, email, role } = req.body;
-
-		if (!id || !displayName || !password || !email || !role) {
+		if (!displayName || !password || !email) {
 			return res.status(statusCodes.badRequest).send({ message: responses.missingFields });
 		}
 
 		await admin.auth().updateUser(id, { displayName, password, email });
-		await admin.auth().setCustomUserClaims(id, { role });
 		const user = await admin.auth().getUser(id);
 
 		return res.status(statusCodes.ok).send({ user: mapUser(user) });
@@ -47,9 +46,9 @@ export const update = async(req: Request, res: Response) => {
 };
 
 export const remove = async(req: Request, res: Response) => {
-	try {
-		const { id } = req.params;
+	const { id } = req.params;
 
+	try {
 		const { email } = await admin.auth().getUser(id);
 
 		await admin.auth().deleteUser(id);

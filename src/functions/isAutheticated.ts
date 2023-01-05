@@ -19,17 +19,17 @@ export const isAuthenticated = async(req: Request, res: Response, next: NextFunc
 	const token = splitedToken[1];
 
 	try {
-		const decodedToken: admin.auth.DecodedIdToken = await admin.auth().verifyIdToken(token);
+		const { uid, role, email }: admin.auth.DecodedIdToken = await admin.auth().verifyIdToken(token);
 
 		res.locals = { 
 			...res.locals,
-			uid: decodedToken.uid,
-			role: decodedToken.role,
-			email: decodedToken.email,
+			uid,
+			role,
+			email,
 		};
 
 		next();
 	} catch (error) {
-		return res.status(statusCodes.unauthorized).send({ message: error.message});
+		return res.status(statusCodes.internalServerError).send({ message: error.message});
 	}
 };

@@ -5,7 +5,11 @@ export const URL = {
 		SIGNUP: '/signup',
 	},
 	USERS: {
-		GET: '/users',
+		SIMPLE: '/users',
 		PARAMS: '/users/:id',
+	},
+	MEMES: {
+		SIMPLE: '/memes',
+		PARAMS: '/memes/:memeId',
 	},
 };
