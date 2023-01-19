@@ -20,14 +20,14 @@ const upload = multer({
 }).single('file');
 
 
-router.post(URL.MEMES.SIMPLE, [
+router.post(URL.MEMES.ROOT, [
 	isAuthenticated,
 	isAuthorized({ hasRole: ['admin', 'user'] }),
 	upload,
 	createMeme,
 ]);
 
-router.get(URL.MEMES.SIMPLE, [
+router.get(URL.MEMES.ROOT, [
 	isAuthenticated,
 	isAuthorized({ hasRole: ['admin', 'user'], allowSameUser: true }),
 	getAllMemes,

@@ -81,7 +81,6 @@ export const likeMeme = async(req: Request, res: Response) => {
 		if (likeSnap.docs.length === 0) {
 			await likeRef.add({
 				uid,
-				memeId,
 			});
 
 			await memeRef.update({ likes: increment });

@@ -4,6 +4,7 @@ import {
 	UserCredential,
 } from 'firebase/auth';
 import admin from 'firebase-admin';
+import dotenv from 'dotenv';
 import { Request, Response } from 'express';
 import app from '../config/firebase.js';
 import { responses } from '../constants/responses.js';
@@ -12,12 +13,14 @@ import { Roles } from '../constants/roles.js';
 import { db } from '../index.js';
 import Collections from '../constants/collections.js';
 
+dotenv.config();
+
 export const signup = async(req: Request, res: Response): Promise<Response> => {
 	try {
 		const { displayName, email, password } = req.body;
 
 		//temporary
-		const role = email === 'admin@gmail.com' ? Roles.admin : Roles.user;
+		const role = email === process.env.EXAMPLE_EMAIL ? Roles.admin : Roles.user;
   
 		if (!email || !password) {
 			return res.status(statusCodes.unprocessableEntity).send(!email ? responses.emailRequired : responses.passwordRequired);

@@ -11,7 +11,7 @@ router.post(URL.AUTH.SIGNUP, signup);
 
 router.post(URL.AUTH.SIGNIN, signin);
 
-router.get(URL.USERS.SIMPLE, [
+router.get(URL.USERS.ROOT, [
 	isAuthenticated,
 	isAuthorized({ hasRole: ['admin'] }),
 	getAll,
