@@ -19,7 +19,7 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 	try {
 		const { displayName, email, password } = req.body;
 
-		//temporary
+		//TODO: setting admin email from Firebase 
 		const role = email === process.env.EXAMPLE_EMAIL ? Roles.admin : Roles.user;
   
 		if (!email || !password) {
