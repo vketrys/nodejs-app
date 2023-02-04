@@ -16,6 +16,6 @@ export const isYoursPost = async(req: Request, res: Response, next: NextFunction
 
 		next();
 	} catch (error) {
-		return res.status(statusCodes.internalServerError).send({ message: error.message});
+		return res.status(statusCodes.internalServerError_500).send({ message: error.message});
 	}
 };

@@ -15,7 +15,7 @@ admin.initializeApp();
 export const db = getFirestore();
 export const storage = getStorage();
 
-const app: Express = express();
+export const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());

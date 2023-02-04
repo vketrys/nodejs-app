@@ -4,12 +4,12 @@ export const errorCodes = {
 };
 
 export const statusCodes = {
-	unprocessableEntity: 422,
-	forbidden: 403,
-	unauthorized: 401,
-	badRequest: 400,
-	ok: 200,
-	created: 201,
-	noContent: 204,
-	internalServerError: 500,
+	unprocessableEntity_422: 422,
+	forbidden_403: 403,
+	unauthorized_401: 401,
+	badRequest_400: 400,
+	ok_200: 200,
+	created_201: 201,
+	noContent_204: 204,
+	internalServerError_500: 500,
 };

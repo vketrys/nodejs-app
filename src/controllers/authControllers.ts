@@ -1,7 +1,6 @@
 import { 
 	getAuth, 
 	signInWithEmailAndPassword,
-	UserCredential,
 } from 'firebase/auth';
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
@@ -23,7 +22,7 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 		const role = email === process.env.EXAMPLE_EMAIL ? Roles.admin : Roles.user;
   
 		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity).send(!email ? responses.emailRequired : responses.passwordRequired);
+			return res.status(statusCodes.unprocessableEntity_422).send(!email ? responses.emailRequired : responses.passwordRequired);
 		}
 
 		const { uid } = await admin.auth().createUser({
@@ -40,13 +39,13 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 
 		await admin.auth().setCustomUserClaims(uid, { role });
 
-		return res.status(statusCodes.created).send({ uid, email, role });
+		return res.status(statusCodes.created_201).send({ uid, email, role });
 	} catch (error) {
 		return res
 			.status(
 				error.code === errorCodes.weakPassword ? 
-					statusCodes.badRequest : 
-					statusCodes.internalServerError,
+					statusCodes.badRequest_400 : 
+					statusCodes.internalServerError_500,
 			)
 			.json({ error: error.message });
 	}
@@ -57,7 +56,7 @@ export const signin = async(req: Request, res: Response): Promise<Response> => {
 		const { email, password } = req.body;
   
 		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity).json({
+			return res.status(statusCodes.unprocessableEntity_422).json({
 				email: responses.emailRequired,
 				password: responses.passwordRequired,
 			});
@@ -65,15 +64,16 @@ export const signin = async(req: Request, res: Response): Promise<Response> => {
   
 		const auth = getAuth(app);
   
-		const user: UserCredential = await signInWithEmailAndPassword(auth, email, password);
+		await signInWithEmailAndPassword(auth, email, password);
+		const jwtToken = await auth.currentUser.getIdToken();
 
-		return res.status(statusCodes.ok).json(user);
+		return res.status(statusCodes.ok_200).send(jwtToken);
 	} catch (error) {
 		return res
 			.status(
 				error.code === errorCodes.wrongPassword ? 
-					statusCodes.badRequest : 
-					statusCodes.internalServerError,
+					statusCodes.badRequest_400 : 
+					statusCodes.internalServerError_500,
 			)
 			.json({ error: error.message });
 	}

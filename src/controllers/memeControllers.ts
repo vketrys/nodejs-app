@@ -14,8 +14,8 @@ export const createMeme = async(req: Request, res: Response) => {
 
 	const { uid } = res.locals;
 
-	if (!req.file) {
-		return res.status(statusCodes.badRequest).send({ message: responses.missingFile });
+	if (!file) {
+		return res.status(statusCodes.badRequest_400).send({ message: responses.missingFile });
 	}
 
 	const fileType = file.originalname.split('.').at(-1);
@@ -41,7 +41,7 @@ export const createMeme = async(req: Request, res: Response) => {
 			mediaURL: downloadURL,
 		}, { merge: true });
 
-		return res.status(statusCodes.created).send({ message: responses.memeCreated });
+		return res.status(statusCodes.created_201).send({ message: responses.memeCreated });
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -57,7 +57,7 @@ export const getAllMemes = async(req: Request, res: Response) => {
 
 		const memesSnapshot = await memesRef.get();
 
-		return res.status(statusCodes.ok).send(memesSnapshot.docs.map((doc) => doc.data()));
+		return res.status(statusCodes.ok_200).send(memesSnapshot.docs.map((doc) => doc.data()));
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -89,10 +89,10 @@ export const likeMeme = async(req: Request, res: Response) => {
 			likeSnap.docs.forEach((doc) => doc.ref.delete());
 			await memeRef.update({ likes: decrement });
 
-			return res.status(statusCodes.forbidden).send({ message: responses.memeUnrated });
+			return res.status(statusCodes.forbidden_403).send({ message: responses.memeUnrated });
 		}
 
-		return res.status(statusCodes.ok).send({ message: responses.memeRated });
+		return res.status(statusCodes.ok_200).send({ message: responses.memeRated });
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -106,7 +106,7 @@ export const getMeme = async(req: Request, res: Response) => {
 
 		const memeSnapshot = await memeRef.get();
 
-		return res.status(statusCodes.ok).send(memeSnapshot.data());
+		return res.status(statusCodes.ok_200).send(memeSnapshot.data());
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -139,7 +139,7 @@ export const updateMeme = async(req: Request, res: Response) => {
 			mediaURL,
 		 });
 
-		return res.status(statusCodes.ok).send({ message: responses.memeUpdated });
+		return res.status(statusCodes.ok_200).send({ message: responses.memeUpdated });
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -159,7 +159,7 @@ export const deleteMeme = async(req: Request, res: Response) => {
 
 		await memeRef.delete();
 
-		return res.status(statusCodes.ok).send({ message: responses.memeDeleted });
+		return res.status(statusCodes.ok_200).send({ message: responses.memeDeleted });
 	} catch (error) {
 		return handleError(res, error);
 	}
