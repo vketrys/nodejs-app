@@ -5,12 +5,12 @@ import {
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 import { Request, Response } from 'express';
-import app from '../config/firebase.js';
-import { responses } from '../constants/responses.js';
-import { errorCodes, statusCodes } from '../constants/codes.js';
-import { Roles } from '../constants/roles.js';
-import { db } from '../index.js';
-import Collections from '../constants/collections.js';
+import app from '../config/firebase';
+import { responses } from '../constants/responses';
+import { errorCodes, statusCodes } from '../constants/codes';
+import { Roles } from '../constants/roles';
+import { db } from '../index';
+import Collections from '../constants/collections';
 
 dotenv.config();
 
@@ -22,7 +22,7 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 		const role = email === process.env.EXAMPLE_EMAIL ? Roles.admin : Roles.user;
   
 		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity_422).send(!email ? responses.emailRequired : responses.passwordRequired);
+			return res.status(statusCodes.unprocessableEntity_422).json(!email ? responses.emailRequired : responses.passwordRequired);
 		}
 
 		const { uid } = await admin.auth().createUser({

@@ -1,18 +1,19 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "types": ["node", "jest"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": "src",
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "paths": {
       "@config": ["src/config/*"],
       "@routes": ["src/routes/*"]
     }
   },
   "include": ["src/**/*"],
-  // "extends": "ts-node/node16/tsconfig.json",
-
+  "exclude": ["tests/**/*"],
 }

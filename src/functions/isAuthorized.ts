@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { statusCodes } from '../constants/codes.js';
-import { responses } from '../constants/responses.js';
+import { statusCodes } from '../constants/codes';
+import { responses } from '../constants/responses';
 
 export const isAuthorized = (opts: { hasRole: Array<'admin' | 'user'>, allowSameUser?: boolean }) => 
 	 (req: Request, res: Response, next: NextFunction) => {

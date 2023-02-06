@@ -1,7 +1,7 @@
 import admin from 'firebase-admin';
 import { Request, Response, NextFunction } from 'express';
-import { responses } from '../constants/responses.js';
-import { statusCodes } from '../constants/codes.js';
+import { responses } from '../constants/responses';
+import { statusCodes } from '../constants/codes';
 
 export const isAuthenticated = async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
 	const { authorization } = req.headers;

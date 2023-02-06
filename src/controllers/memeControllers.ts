@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { ref, uploadBytes, deleteObject } from 'firebase/storage';
 import admin from 'firebase-admin';
-import { db, storage } from '../index.js';
-import { statusCodes } from '../constants/codes.js';
-import { Roles } from '../constants/roles.js';
-import handleError from '../utils/handleError.js';
-import { responses } from '../constants/responses.js';
-import Collections from '../constants/collections.js';
+import { db, storage } from '../index';
+import { statusCodes } from '../constants/codes';
+import { Roles } from '../constants/roles';
+import handleError from '../utils/handleError';
+import { responses } from '../constants/responses';
+import Collections from '../constants/collections';
 
 export const createMeme = async(req: Request, res: Response) => {
 	const { text } = req.body;

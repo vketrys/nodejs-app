@@ -3,3 +3,4 @@ dist
 .env
 service-account-file.json
 tests
+coverage

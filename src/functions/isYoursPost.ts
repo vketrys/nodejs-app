@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { statusCodes } from '../constants/codes.js';
-import { db } from '../index.js';
-import Collections from '../constants/collections.js';
+import { statusCodes } from '../constants/codes';
+import { db } from '../index';
+import Collections from '../constants/collections';
 
 export const isYoursPost = async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
 	const { memeId } = req.params;

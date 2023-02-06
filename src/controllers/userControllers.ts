@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import admin from 'firebase-admin';
-import handleError from '../utils/handleError.js';
-import { statusCodes } from '../constants/codes.js';
-import { responses } from '../constants/responses.js';
-import { Roles } from '../constants/roles.js';
+import handleError from '../utils/handleError';
+import { statusCodes } from '../constants/codes';
+import { responses } from '../constants/responses';
+import { Roles } from '../constants/roles';
 
 export const getAll = async(req: Request, res: Response) => {
 	try {

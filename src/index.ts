@@ -1,10 +1,10 @@
 import express, { Express } from 'express';
 import admin from 'firebase-admin';
-import authRoutes from './routes/userRoutes.js';
-import memeRoutes from './routes/memeRoutes.js';
+import authRoutes from './routes/userRoutes';
+import memeRoutes from './routes/memeRoutes';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { URL } from './constants/URL.js';
+import { URL } from './constants/URL';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase/storage';
 import dotenv from 'dotenv';
@@ -23,7 +23,8 @@ app.use(cors({ origin: true }));
 
 app.use(URL.ROOT, authRoutes, memeRoutes);
 
-
-app.listen(port, () => {
-	process.stdout.write(`app listening on port ${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+	app.listen(port, () => {
+		process.stdout.write(`app listening on port ${port}`);
+	});
+}

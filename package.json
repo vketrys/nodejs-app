@@ -7,7 +7,7 @@
   },
   "description": "node.js app",
   "main": "index.ts",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "postinstall": "tsc",
     "start": "node dist/index.js",
@@ -15,7 +15,7 @@
     "watch-node": "nodemon ./dist/index.js",
     "lint": "eslint . --ext .ts",
     "format": "eslint . --ext .ts --fix",
-    "test": "jest"
+    "test": "jest --detectOpenHandles"
   },
   "repository": {
     "type": "git",

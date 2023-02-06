@@ -1,9 +1,9 @@
 import express from 'express';
 import multer from 'multer';
-import { isAuthenticated } from '../functions/isAutheticated.js';
-import { isAuthorized } from '../functions/isAuthorized.js';
-import { isYoursPost } from '../functions/isYoursPost.js';
-import { URL } from '../constants/URL.js';
+import { isAuthenticated } from '../functions/isAutheticated';
+import { isAuthorized } from '../functions/isAuthorized';
+import { isYoursPost } from '../functions/isYoursPost';
+import { URL } from '../constants/URL';
 import { 
 	createMeme, 
 	deleteMeme, 
@@ -11,7 +11,7 @@ import {
 	getMeme, 
 	likeMeme, 
 	updateMeme,
-} from '../controllers/memeControllers.js';
+} from '../controllers/memeControllers';
 
 const router = express.Router();
 
