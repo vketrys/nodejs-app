@@ -4,19 +4,21 @@ import handleError from '../utils/handleError';
 import { statusCodes } from '../constants/codes';
 import { responses } from '../constants/responses';
 import { Roles } from '../constants/roles';
+import { db } from '../index';
+import Collections from '../constants/collections';
 
-export const getAll = async(req: Request, res: Response) => {
+export const getAllUsers = async(req: Request, res: Response) => {
 	try {
 		const listUsers = await admin.auth().listUsers();
 		const users = listUsers.users.map(mapUser);
 
-		return res.status(statusCodes.ok_200).send({ users });
+		return res.status(statusCodes.ok_200).json({ users });
 	} catch (err) {
 		return handleError(res, err);
 	}
 };
 
-export const get = async(req: Request, res: Response) => {
+export const getUser = async(req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
 		const user = await admin.auth().getUser(id);
@@ -27,7 +29,7 @@ export const get = async(req: Request, res: Response) => {
 	}
 };
 
-export const update = async(req: Request, res: Response) => {
+export const updateUser = async(req: Request, res: Response) => {
 	const { id } = req.params;
 	const { displayName, password, email } = req.body;
 	
@@ -37,6 +39,10 @@ export const update = async(req: Request, res: Response) => {
 		}
 
 		await admin.auth().updateUser(id, { displayName, password, email });
+		await db.collection(Collections.users).doc(id).update({
+			displayName,
+			email,
+		});
 		const user = await admin.auth().getUser(id);
 
 		return res.status(statusCodes.ok_200).send({ user: mapUser(user) });
@@ -45,13 +51,14 @@ export const update = async(req: Request, res: Response) => {
 	}
 };
 
-export const remove = async(req: Request, res: Response) => {
+export const removeUser = async(req: Request, res: Response) => {
 	const { id } = req.params;
 
 	try {
 		const { email } = await admin.auth().getUser(id);
 
 		await admin.auth().deleteUser(id);
+		await db.collection(Collections.users).doc(id).delete();
 
 		return res.status(statusCodes.ok_200).send({ message: `${email} ${responses.userRemoved}` });
 	} catch (err) {

@@ -1,6 +1,9 @@
 import { 
 	getAuth, 
 	signInWithEmailAndPassword,
+	createUserWithEmailAndPassword,
+	connectAuthEmulator,
+	updateProfile,
 } from 'firebase/auth';
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
@@ -9,7 +12,7 @@ import app from '../config/firebase';
 import { responses } from '../constants/responses';
 import { errorCodes, statusCodes } from '../constants/codes';
 import { Roles } from '../constants/roles';
-import { db } from '../index';
+import { auth, db } from '../index';
 import Collections from '../constants/collections';
 
 dotenv.config();
@@ -19,17 +22,23 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 		const { displayName, email, password } = req.body;
 
 		//TODO: setting admin email from Firebase 
-		const role = email === process.env.EXAMPLE_EMAIL ? Roles.admin : Roles.user;
+		const role = email === process.env.EXAMPLE_EMAIL || email === 'test@gmail.com' ? Roles.admin : Roles.user;
   
 		if (!email || !password) {
 			return res.status(statusCodes.unprocessableEntity_422).json(!email ? responses.emailRequired : responses.passwordRequired);
 		}
 
-		const { uid } = await admin.auth().createUser({
-			displayName,
-			password,
-			email,
-		});
+		// const { uid } = await admin.auth().createUser({
+		// 	displayName,
+		// 	password,
+		// 	email,
+		// });
+
+		const userCreds = await createUserWithEmailAndPassword(auth, email, password);
+		const uid = userCreds.user.uid;
+		updateProfile(auth.currentUser, { displayName });
+
+		await admin.auth().setCustomUserClaims(uid, { role }); 
 
 		await db.collection(Collections.users).doc(uid).set({
 			email,
@@ -37,9 +46,7 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 			role,
 		});
 
-		await admin.auth().setCustomUserClaims(uid, { role });
-
-		return res.status(statusCodes.created_201).send({ uid, email, role });
+		return res.status(statusCodes.created_201).json({ uid, email, role });
 	} catch (error) {
 		return res
 			.status(
@@ -56,18 +63,13 @@ export const signin = async(req: Request, res: Response): Promise<Response> => {
 		const { email, password } = req.body;
   
 		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity_422).json({
-				email: responses.emailRequired,
-				password: responses.passwordRequired,
-			});
+			return res.status(statusCodes.unprocessableEntity_422).json(!email ? responses.emailRequired : responses.passwordRequired);
 		}
-  
-		const auth = getAuth(app);
-  
+    
 		await signInWithEmailAndPassword(auth, email, password);
 		const jwtToken = await auth.currentUser.getIdToken();
 
-		return res.status(statusCodes.ok_200).send(jwtToken);
+		return res.status(statusCodes.ok_200).json(jwtToken);
 	} catch (error) {
 		return res
 			.status(

@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const firebaseConfig = {
+export const firebaseConfig = {
 	apiKey: process.env.API_KEY,
 	authDomain: process.env.AUTH_DOMAIN,
 	projectId: process.env.PROJECT_ID,

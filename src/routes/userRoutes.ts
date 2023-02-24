@@ -3,7 +3,7 @@ import { isAuthenticated } from '../functions/isAutheticated';
 import { isAuthorized } from '../functions/isAuthorized';
 import { signup, signin } from '../controllers/authControllers';
 import { URL } from '../constants/URL';
-import { get, getAll, remove, update } from '../controllers/userControllers';
+import { getUser, getAllUsers, removeUser, updateUser } from '../controllers/userControllers';
 
 const router = express.Router();
 
@@ -14,25 +14,25 @@ router.post(URL.AUTH.SIGNIN, signin);
 router.get(URL.USERS.ROOT, [
 	isAuthenticated,
 	isAuthorized({ hasRole: ['admin'] }),
-	getAll,
+	getAllUsers,
 ]);
 
 router.get(URL.USERS.PARAMS, [
 	isAuthenticated,
 	isAuthorized({ hasRole: ['admin'], allowSameUser: true }),
-	get,
+	getUser,
 ]);
 
 router.patch(URL.USERS.PARAMS, [
 	isAuthenticated,
 	isAuthorized({ hasRole: ['admin'], allowSameUser: true }),
-	update,
+	updateUser,
 ]);
 
 router.delete(URL.USERS.PARAMS, [
 	isAuthenticated,
-	isAuthorized({ hasRole: ['admin'], allowSameUser: false }),
-	remove,
+	isAuthorized({ hasRole: ['admin'] }),
+	removeUser,
 ]);
 
 export default router;

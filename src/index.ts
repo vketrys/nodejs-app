@@ -6,14 +6,21 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { URL } from './constants/URL';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getStorage } from 'firebase/storage';
+import { connectStorageEmulator, getStorage } from 'firebase/storage';
 import dotenv from 'dotenv';
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
+import firebaseApp from './config/firebase';
+
 dotenv.config();
 
 admin.initializeApp();
 
 export const db = getFirestore();
 export const storage = getStorage();
+export const auth = getAuth(firebaseApp);
+connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+
+
 
 export const app: Express = express();
 const port = process.env.PORT || 3000;
