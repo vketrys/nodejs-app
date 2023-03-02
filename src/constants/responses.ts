@@ -13,5 +13,6 @@ export const responses = {
 	memeUnrated: 'Your rate was removed!',
 	memeUpdated: 'Meme was updated successfully!',
 	memeDeleted: 'Meme was deleted successfully!',
+	memesUnpublished: 'There are no published memes',
 };
 

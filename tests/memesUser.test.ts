@@ -5,10 +5,12 @@ import { statusCodes } from '../src/constants/codes';
 import { responses } from '../src/constants/responses';
 import { userCredentials } from './creds';
 
-describe('User CRUD operations', () => {
+describe('User meme CRUD operations', () => {
 	let userToken: string | undefined;
 	let adminId: string | undefined;
 	let userId: string | undefined;
+	let adminMemeId: string | undefined;
+	let userMemeId: string | undefined;
 
 	beforeAll(async() => {
 		const response = await request(app)

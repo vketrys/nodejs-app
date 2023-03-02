@@ -1,14 +1,7 @@
-import { 
-	getAuth, 
-	signInWithEmailAndPassword,
-	createUserWithEmailAndPassword,
-	connectAuthEmulator,
-	updateProfile,
-} from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 import { Request, Response } from 'express';
-import app from '../config/firebase';
 import { responses } from '../constants/responses';
 import { errorCodes, statusCodes } from '../constants/codes';
 import { Roles } from '../constants/roles';
@@ -22,21 +15,21 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 		const { displayName, email, password } = req.body;
 
 		//TODO: setting admin email from Firebase 
-		const role = email === process.env.EXAMPLE_EMAIL || email === 'test@gmail.com' ? Roles.admin : Roles.user;
+		const role = email === process.env.EXAMPLE_EMAIL || email === 'test@gmail.com' 
+			? Roles.admin 
+			: Roles.user;
   
 		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity_422).json(!email ? responses.emailRequired : responses.passwordRequired);
+			return res
+				.status(statusCodes.unprocessableEntity_422)
+				.json(!email ? responses.emailRequired : responses.passwordRequired);
 		}
 
-		// const { uid } = await admin.auth().createUser({
-		// 	displayName,
-		// 	password,
-		// 	email,
-		// });
-
-		const userCreds = await createUserWithEmailAndPassword(auth, email, password);
-		const uid = userCreds.user.uid;
-		updateProfile(auth.currentUser, { displayName });
+		const { uid } = await admin.auth().createUser({
+			displayName,
+			password,
+			email,
+		});
 
 		await admin.auth().setCustomUserClaims(uid, { role }); 
 
@@ -63,7 +56,9 @@ export const signin = async(req: Request, res: Response): Promise<Response> => {
 		const { email, password } = req.body;
   
 		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity_422).json(!email ? responses.emailRequired : responses.passwordRequired);
+			return res
+				.status(statusCodes.unprocessableEntity_422)
+				.json(!email ? responses.emailRequired : responses.passwordRequired);
 		}
     
 		await signInWithEmailAndPassword(auth, email, password);

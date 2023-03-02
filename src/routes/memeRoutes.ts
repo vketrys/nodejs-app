@@ -41,6 +41,7 @@ router.put(URL.MEMES.PARAMS, [
 
 router.get(URL.MEMES.PARAMS, [
 	isAuthenticated,
+	isYoursPost,
 	isAuthorized({ hasRole: ['admin'], allowSameUser: true }),
 	getMeme,
 ]);

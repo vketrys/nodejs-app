@@ -23,7 +23,7 @@ export const getUser = async(req: Request, res: Response) => {
 		const { id } = req.params;
 		const user = await admin.auth().getUser(id);
 
-		return res.status(statusCodes.ok_200).send({ user: mapUser(user) });
+		return res.status(statusCodes.ok_200).json(mapUser(user));
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -31,21 +31,18 @@ export const getUser = async(req: Request, res: Response) => {
 
 export const updateUser = async(req: Request, res: Response) => {
 	const { id } = req.params;
-	const { displayName, password, email } = req.body;
+	const { displayName, password } = req.body;
 	
 	try {
-		if (!displayName || !password || !email) {
-			return res.status(statusCodes.badRequest_400).send({ message: responses.missingFields });
+		if (!displayName || !password) {
+			return res.status(statusCodes.badRequest_400).json(responses.missingFields);
 		}
 
-		await admin.auth().updateUser(id, { displayName, password, email });
-		await db.collection(Collections.users).doc(id).update({
-			displayName,
-			email,
-		});
+		await admin.auth().updateUser(id, { displayName, password });
+		await db.collection(Collections.users).doc(id).update({ displayName });
 		const user = await admin.auth().getUser(id);
 
-		return res.status(statusCodes.ok_200).send({ user: mapUser(user) });
+		return res.status(statusCodes.ok_200).json(mapUser(user));
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -60,7 +57,7 @@ export const removeUser = async(req: Request, res: Response) => {
 		await admin.auth().deleteUser(id);
 		await db.collection(Collections.users).doc(id).delete();
 
-		return res.status(statusCodes.ok_200).send({ message: `${email} ${responses.userRemoved}` });
+		return res.status(statusCodes.ok_200).json(`${email} ${responses.userRemoved}`);
 	} catch (err) {
 		return handleError(res, err);
 	}

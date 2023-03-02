@@ -1,148 +1,133 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import request from 'supertest';
-import { app } from '../src/index';
+import { app, auth } from '../src/index';
 import { URL } from '../src/constants/URL';
 import { statusCodes } from '../src/constants/codes';
 import { responses } from '../src/constants/responses';
-import { getAuth } from 'firebase/auth';
-import firebaseApp, { firebaseConfig } from '../src/config/firebase';
-import { mockFirebase } from 'firestore-jest-mock';
+import { userCredentials } from './creds';
+import { Roles } from '../src/constants/roles';
 
-const correctUserCredentials = {
-	email: 'test@gmail.com',
-	password: '123456qwerty',
-	displayName: 'testUser',
-};
+describe('Firebase authorization', () => {
+	let userToken: string | undefined;
+	let userId: string | undefined;
+	let adminId: string | undefined;
 
-export const signInUserCredentials = {
-	email: 'test@gmail.com',
-	password: '123456qwerty',
-};
-
-const userCredentialsWithoutEmail = {
-	password: '123456qwerty',
-};
-
-const userCredentialsWithoutPassword = {
-	email: 'test@gmail.com',
-};
-
-describe('Firebase authorization tests', () => {
-	mockFirebase({
-		database: {
-			users: [
-				{ id: 'abc123', first: 'Bob', last: 'builder', born: 1998 },
-				{
-					id: '123abc',
-					first: 'Blues',
-					last: 'builder',
-					born: 1996,
-					_collections: {
-						cities: [{ id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA', visited: true }],
-					},
-				},
-			],
-			cities: [
-				{ id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA' },
-				{ id: 'DC', name: 'Disctric of Columbia', state: 'DC', country: 'USA' },
-			],
-		},
-		currentUser: { uid: 'abc123', displayName: 'Bob' },
-	});
-
-	const firebase = require('firebase');
-	const admin = require('firebase-admin');
-
-	beforeEach(() => {
-		jest.clearAllMocks();
-		firebase.initializeApp(firebaseConfig);
-	});
-
-	// let userId: string;
-	// let userToken: string | undefined;
-
-	// describe('Sign up', () => {
+	describe('Sign up', () => {
 		
-	// 	describe('User sign up without email', () => {
-	// 		test('should return 422 and error message', async() => {
-	// 			const { statusCode, body } = await request(app)
-	// 				.post(`/api${URL.AUTH.SIGNUP}`)
-	// 				.send(userCredentialsWithoutEmail);
+		describe('User sign up without email or password', () => {
 
-	// 			expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
-	// 			expect(body).toBe(responses.emailRequired);
-	// 		});
-	// 	});
+			test('should return 422 and error message (without email)', async() => {
 
-	// 	describe('User sign up without password', () => {
-	// 		test('should return 422 and error message', async() => {
-	// 			const { statusCode, body } = await request(app)
-	// 				.post(`/api${URL.AUTH.SIGNUP}`)
-	// 				.send(userCredentialsWithoutPassword);
+				const { statusCode, body } = await request(app)
+					.post(`/api${URL.AUTH.SIGNUP}`)
+					.send(userCredentials.withoutEmail);
 
-	// 			expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
-	// 			expect(body).toBe(responses.passwordRequired);
-	// 		});
-	// 	});
+				expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
+				expect(body).toBe(responses.emailRequired);
+			});
 
-	// 	describe('User sign up success', () => {
-	// 		test('should return 201 and email', async() => {
-	// 			const { statusCode, body } = await request(app)
-	// 				.post(`/api${URL.AUTH.SIGNUP}`)
-	// 				.send(correctUserCredentials);
+			test('should return 422 and error message (without password)', async() => {
+				const { statusCode, body } = await request(app)
+					.post(`/api${URL.AUTH.SIGNUP}`)
+					.send(userCredentials.withoutPassword);
 
-	// 			userId = body.uid;
+				expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
+				expect(body).toBe(responses.passwordRequired);
+			});
+		});
 
-	// 			expect(statusCode).toBe(statusCodes.created_201);
-	// 			expect(body).toHaveProperty('email', correctUserCredentials.email);
-	// 		});
-	// 	});
-	// });
+		describe('Admin sign up success', () => {
 
-	// describe('Sign in', () => {
+			test('should return 201 and email (admin)', async() => {
+				const { statusCode, body } = await request(app)
+					.post(`/api${URL.AUTH.SIGNUP}`)
+					.send(userCredentials.admin.signUp);
 
-	// 	describe('Sign in without email', () => {
-	// 		test('should return 422 and error message', async() => {
-	// 			const { statusCode, body } = await request(app)
-	// 				.post(`/api${URL.AUTH.SIGNIN}`)
-	// 				.send(userCredentialsWithoutEmail);
+				expect(statusCode).toBe(statusCodes.created_201);
 
-	// 			expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
-	// 			expect(body).toBe(responses.emailRequired);
-	// 		});
-	// 	});
+				await request(app)
+					.post(`/api${URL.AUTH.SIGNIN}`)
+					.send(userCredentials.admin.signIn);
 
-	// 	describe('Sign in without password', () => {
-	// 		test('should return 422 and error message', async() => {
-	// 			const { statusCode, body } = await request(app)
-	// 				.post(`/api${URL.AUTH.SIGNIN}`)
-	// 				.send(userCredentialsWithoutPassword);
+				const userEmail = auth.currentUser?.email;
 
-	// 			expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
-	// 			expect(body).toBe(responses.passwordRequired);
-	// 		});
-	// 	});
+				expect(body).toHaveProperty('email', userEmail);
+				expect(body).toHaveProperty('role', Roles.admin);
+			});
+		});
 
-	// 	describe('User sign in success', () => {
-	// 		test('should return 201 and email', async() => {
-	// 			const { statusCode, body } = await request(app)
-	// 				.post(`/api${URL.AUTH.SIGNIN}`)
-	// 				.send(signInUserCredentials);
+		describe('User sign up success', () => {
+
+			test('should return 201 and email (user)', async() => {
+				const { statusCode, body } = await request(app)
+					.post(`/api${URL.AUTH.SIGNUP}`)
+					.send(userCredentials.user.signUp);
+
+				expect(statusCode).toBe(statusCodes.created_201);
+				expect(body).toHaveProperty('email', userCredentials.user.signIn.email);
+				expect(body).toHaveProperty('role', Roles.user);
+			});
+		});
+	});
+
+	describe('Sign in:', () => {
+
+		describe('Sign in without email or password', () => {
+			
+			test('should return 422 and error message (without email)', async() => {
+				const { statusCode, body } = await request(app)
+					.post(`/api${URL.AUTH.SIGNIN}`)
+					.send(userCredentials.withoutEmail);
+
+				expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
+				expect(body).toBe(responses.emailRequired);
+			});
+
+			test('should return 422 and error message (without password)', async() => {
+				const { statusCode, body } = await request(app)
+					.post(`/api${URL.AUTH.SIGNIN}`)
+					.send(userCredentials.withoutPassword);
+
+				expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
+				expect(body).toBe(responses.passwordRequired);
+			});
+		});
+
+		describe('Sign in success', () => {
+
+			test('should return 201 and token (user)', async() => {
+				const { statusCode, body } = await request(app)
+					.post(`/api${URL.AUTH.SIGNIN}`)
+					.send(userCredentials.user.signIn);
 				
-	// 			const auth = getAuth(firebaseApp);
-	// 			const jwtToken = await auth.currentUser?.getIdToken();
+				const jwtToken = await auth.currentUser?.getIdToken();
+				userId = auth.currentUser?.uid;
 
-	// 			userToken = jwtToken;
+				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(body).toBe(jwtToken);
+			});
 
-	// 			expect(statusCode).toBe(statusCodes.ok_200);
-	// 			expect(body).toBe(jwtToken);
-	// 		});
-	// 	});
-	// });
+			test('should return 201 and token (admin)', async() => {
+				const { statusCode, body } = await request(app)
+					.post(`/api${URL.AUTH.SIGNIN}`)
+					.send(userCredentials.admin.signIn);
+				
+				const jwtToken = await auth.currentUser?.getIdToken();
+				userToken = jwtToken;
+				adminId = auth.currentUser?.uid;
 
-	// afterAll(async() => {
-	// 	await request(app)
-	// 		.delete(`/api/users/${userId}`)
-	// 		.set('Authorization', `Bearer ${userToken}`);
-	// });
+				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(body).toBe(jwtToken);
+			});
+		});
+	});
+
+	afterAll(async() => {
+		await request(app)
+			.delete(`${URL.USERS.TEST}/${userId}`)
+			.set('Authorization', `Bearer ${userToken}`);
+
+		await request(app)
+			.delete(`${URL.USERS.TEST}/${adminId}`)
+			.set('Authorization', `Bearer ${userToken}`);
+	});
 });

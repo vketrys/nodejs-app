@@ -15,7 +15,7 @@ export const createMeme = async(req: Request, res: Response) => {
 	const { uid } = res.locals;
 
 	if (!file) {
-		return res.status(statusCodes.badRequest_400).send({ message: responses.missingFile });
+		return res.status(statusCodes.badRequest_400).json(responses.missingFile);
 	}
 
 	const fileType = file.originalname.split('.').at(-1);
@@ -56,6 +56,9 @@ export const getAllMemes = async(req: Request, res: Response) => {
 			db.collection(Collections.memes).where('isPublished', '==', true);
 
 		const memesSnapshot = await memesRef.get();
+		if (memesSnapshot.size < 1) {
+			return res.status(statusCodes.ok_200).send({ message: responses.memesUnpublished });
+		}
 
 		return res.status(statusCodes.ok_200).send(memesSnapshot.docs.map((doc) => doc.data()));
 	} catch (error) {

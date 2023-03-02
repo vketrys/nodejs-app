@@ -4,6 +4,7 @@ export const errorCodes = {
 };
 
 export const statusCodes = {
+	invalidToken_498: 498,
 	unprocessableEntity_422: 422,
 	forbidden_403: 403,
 	unauthorized_401: 401,

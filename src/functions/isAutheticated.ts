@@ -7,13 +7,13 @@ export const isAuthenticated = async(req: Request, res: Response, next: NextFunc
 	const { authorization } = req.headers;
 
 	if (!authorization || !authorization.startsWith('Bearer')) {
-		return res.status(statusCodes.unauthorized_401).send({message : responses.unauthorized});
+		return res.status(statusCodes.unauthorized_401).json(responses.unauthorized);
 	}
 
 	const splitedToken = authorization.split(' ');
 
 	if (splitedToken.length !== 2) {
-		return res.status(statusCodes.unauthorized_401).send({ message: responses.tokenIssue}); 
+		return res.status(statusCodes.invalidToken_498).json(responses.tokenIssue);
 	}
 
 	const token = splitedToken[1];

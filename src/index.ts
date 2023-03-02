@@ -19,8 +19,7 @@ export const db = getFirestore();
 export const storage = getStorage();
 export const auth = getAuth(firebaseApp);
 connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-
-
+connectStorageEmulator(storage, '127.0.0.1', 9199);
 
 export const app: Express = express();
 const port = process.env.PORT || 3000;
