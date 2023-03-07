@@ -12,8 +12,9 @@ describe('User meme CRUD operations', () => {
 	let userId: string | undefined;
 
 	let adminMemeId: string | undefined;
+	let newAdminMemeId: string | undefined;
+
 	let userMemeId: string | undefined;
-	let newUserMemeId: string | undefined;
 
 	const reqCases = [
 		['post', URL.MEMES.TEST],
@@ -75,7 +76,7 @@ describe('User meme CRUD operations', () => {
 	beforeEach(async() => {
 		await request(app)
 			.post(`/api${URL.AUTH.SIGNIN}`)
-			.send(userCredentials.user.signIn);
+			.send(userCredentials.admin.signIn);
 
 		userToken = await auth.currentUser?.getIdToken();
 	});
@@ -124,7 +125,7 @@ describe('User meme CRUD operations', () => {
 
 			const { message, memeId } = body;
 
-			newUserMemeId = memeId;
+			newAdminMemeId = memeId;
 
 			expect(statusCode).toBe(statusCodes.created_201);
 			expect(message).toBe(responses.memeCreated);
@@ -133,19 +134,36 @@ describe('User meme CRUD operations', () => {
 
 	describe('GET all memes', () => {
 
-		test('should return 200 and no content message', async() => {
+		test('should return 200 and memes array', async() => {
 			const { statusCode, body } = await request(app)
 				.get(URL.MEMES.TEST)
 				.set('Authorization', `Bearer ${userToken}`);
 
+			const { memes } = body;
+
 			expect(statusCode).toBe(statusCodes.ok_200);
-			expect(body).toBe(responses.memesUnpublished);
+			expect(body).toHaveProperty('memes');
+			expect(memes).toHaveLength(3);
+			expect(memes[0].userId === adminId || memes[0].userId === userId).toBeTruthy();
+			expect(memes[1].userId === adminId || memes[1].userId === userId).toBeTruthy();
 		});
 	});
 
 	describe('GET meme', () => {
 
 		describe('Own meme', () => {
+
+			test('should return 200 and meme', async() => {
+				const { statusCode, body } = await request(app)
+					.get(`${URL.MEMES.TEST}/${newAdminMemeId}`)
+					.set('Authorization', `Bearer ${userToken}`);
+
+				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(body).toHaveProperty('userId', adminId);
+			});
+		});
+
+		describe('Other user meme', () => {
 
 			test('should return 200 and meme', async() => {
 				const { statusCode, body } = await request(app)
@@ -156,18 +174,6 @@ describe('User meme CRUD operations', () => {
 				expect(body).toHaveProperty('userId', userId);
 			});
 		});
-
-		describe('Other user meme', () => {
-
-			test('should return 403 and error message (permission issue)', async() => {
-				const { statusCode, body } = await request(app)
-					.get(`${URL.MEMES.TEST}/${adminMemeId}`)
-					.set('Authorization', `Bearer ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.forbidden_403);
-				expect(body).toBe(responses.permissionIssue);
-			});
-		});
 	});
 
 	describe('UPDATE meme', () => {
@@ -176,8 +182,8 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (text and file)', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.MEMES.TEST}/${newUserMemeId}`)
-					.field('text', memeCreds.textUpdated)
+					.patch(`${URL.MEMES.TEST}/${newAdminMemeId}`)
+					.field('text', memeCreds.text)
 					.attach('file', 'tests/memePic.jpg')
 					.set('Authorization', `Bearer ${userToken}`);
 
@@ -187,8 +193,8 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (only text)', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.MEMES.TEST}/${newUserMemeId}`)
-					.field('text', memeCreds.textUpdated)
+					.patch(`${URL.MEMES.TEST}/${newAdminMemeId}`)
+					.field('text', memeCreds.text)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.ok_200);
@@ -200,38 +206,11 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 403 and error message (permission issue)', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.patch(`${URL.MEMES.TEST}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.forbidden_403);
 				expect(body).toBe(responses.permissionIssue);
-			});
-		});
-	});
-
-	describe('REMOVE meme', () => {
-
-		describe('removing other meme', () => {
-
-			test('should return 403 and error message (permission issue)', async() => {
-				const { statusCode, body } = await request(app)
-					.get(`${URL.MEMES.TEST}/${adminMemeId}`)
-					.set('Authorization', `Bearer ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.forbidden_403);
-				expect(body).toBe(responses.permissionIssue);
-			});
-		});
-
-		describe('removing own meme', () => {
-
-			test('should return 200 and success message', async() => {
-				const { statusCode, body } = await request(app)
-					.delete(`${URL.MEMES.TEST}/${newUserMemeId}`)
-					.set('Authorization', `Bearer ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.ok_200);
-				expect(body).toBe(responses.memeDeleted);
 			});
 		});
 	});
@@ -242,7 +221,7 @@ describe('User meme CRUD operations', () => {
 			
 			test('should return 200 and success message (like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${userMemeId}`)
+					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.ok_200);
@@ -251,7 +230,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (remove like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${userMemeId}`)
+					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.ok_200);
@@ -263,7 +242,7 @@ describe('User meme CRUD operations', () => {
 			
 			test('should return 200 and success message (like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${userMemeId}`)
+					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
@@ -273,7 +252,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (remove like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${userMemeId}`)
+					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
@@ -286,7 +265,7 @@ describe('User meme CRUD operations', () => {
 			
 			test('should return 200 and success message (like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.put(`${URL.MEMES.TEST}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.ok_200);
@@ -295,7 +274,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (remove like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.put(`${URL.MEMES.TEST}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.ok_200);
@@ -307,7 +286,7 @@ describe('User meme CRUD operations', () => {
 			
 			test('should return 200 and success message (like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.put(`${URL.MEMES.TEST}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
@@ -317,12 +296,39 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (remove like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.put(`${URL.MEMES.TEST}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
 				expect(statusCode).toBe(statusCodes.ok_200);
 				expect(body).toBe(responses.memeUnrated);
+			});
+		});
+	});
+
+	describe('REMOVE meme', () => {
+
+		describe('removing other meme', () => {
+
+			test('should return 200 and success message', async() => {
+				const { statusCode, body } = await request(app)
+					.delete(`${URL.MEMES.TEST}/${userMemeId}`)
+					.set('Authorization', `Bearer ${userToken}`);
+
+				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(body).toBe(responses.memeDeleted);
+			});
+		});
+
+		describe('removing own meme', () => {
+
+			test('should return 200 and success message', async() => {
+				const { statusCode, body } = await request(app)
+					.delete(`${URL.MEMES.TEST}/${newAdminMemeId}`)
+					.set('Authorization', `Bearer ${userToken}`);
+
+				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(body).toBe(responses.memeDeleted);
 			});
 		});
 	});
@@ -333,10 +339,6 @@ describe('User meme CRUD operations', () => {
 			.send(userCredentials.admin.signIn);
 
 		userToken = await auth.currentUser?.getIdToken();
-
-		await request(app)
-			.delete(`${URL.MEMES.TEST}/${userMemeId}`)
-			.set('Authorization', `Bearer ${userToken}`);
 
 		await request(app)
 			.delete(`${URL.MEMES.TEST}/${adminMemeId}`)

@@ -42,3 +42,11 @@ export const userCredentials = {
 		},
 	},
 };
+
+export const memeCreds = {
+	text: 'meme text',
+	textUpdated: 'updated meme text',
+	superLike: {
+		count: 10,
+	},
+};

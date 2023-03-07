@@ -10,6 +10,16 @@ describe('Admin CRUD operations', () => {
 	let adminId: string | undefined;
 	let userId: string | undefined;
 
+	const reqCases = [
+		['get', URL.USERS.TEST],
+		['get', `${URL.USERS.TEST}/${adminId}`],
+		['get', `${URL.USERS.TEST}/${userId}`],
+		['patch', `${URL.USERS.TEST}/${adminId}`],
+		['patch', `${URL.USERS.TEST}/${userId}`],
+		['delete', `${URL.USERS.TEST}/${adminId}`],
+		['delete', `${URL.USERS.TEST}/${userId}`],
+	];
+
 	beforeAll(async() => {
 		const response = await request(app)
 			.post(`/api${URL.AUTH.SIGNUP}`)
@@ -32,25 +42,30 @@ describe('Admin CRUD operations', () => {
 		userToken = await auth.currentUser?.getIdToken();
 	});
 
+	describe('Repetable error request for each HTTP methods', () => {
+
+		test.each(reqCases)(
+			'should return 401 and error message (authorization issue) for %s to url at index %#',
+			async(req, url) => {
+				const { statusCode, body } = await request(app)[req](url)
+					.set('Authorization', `Beare ${userToken}`);
+
+				expect(statusCode).toBe(statusCodes.unauthorized_401);
+				expect(body).toBe(responses.unauthorized);
+			});
+
+		test.each(reqCases)(
+			'should return 498 and error message (wrong token) for %s to url at index %#',
+			async(req, url) => {
+				const { statusCode, body } = await request(app)[req](url)
+					.set('Authorization', `Bearer ${userToken} a`);
+	
+				expect(statusCode).toBe(statusCodes.invalidToken_498);
+				expect(body).toBe(responses.tokenIssue);
+			});
+	});
+
 	describe('GET all users', () => {
-		test('should return 401 and error message (authorization issue)', async() => {
-			//.each([request(app).get, userToken])
-			const { statusCode, body } = await request(app)
-				.get(URL.USERS.TEST)
-				.set('Authorization', `Beare ${userToken}`);
-
-			expect(statusCode).toBe(statusCodes.unauthorized_401);
-			expect(body).toBe(responses.unauthorized);
-		});
-
-		test('should return 498 and error message (wrong token)', async() => {
-			const { statusCode, body } = await request(app)
-				.get(URL.USERS.TEST)
-				.set('Authorization', `Bearer ${userToken} a`);
-
-			expect(statusCode).toBe(statusCodes.invalidToken_498);
-			expect(body).toBe(responses.tokenIssue);
-		});
 
 		test('should return 200 and user list', async() => {
 			const { statusCode, body } = await request(app)
@@ -71,24 +86,6 @@ describe('Admin CRUD operations', () => {
 
 		describe('Own user data', () => {
 
-			test('should return 401 and error message (authorization issue)', async() => {
-				const { statusCode, body } = await request(app)
-					.get(`${URL.USERS.TEST}/${adminId}`)
-					.set('Authorization', `Beare ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
-				expect(body).toBe(responses.unauthorized);
-			});
-
-			test('should return 498 and error message (wrong token)', async() => {
-				const { statusCode, body } = await request(app)
-					.get(`${URL.USERS.TEST}/${adminId}`)
-					.set('Authorization', `Bearer ${userToken} a`);
-
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
-				expect(body).toBe(responses.tokenIssue);
-			});
-
 			test('should return 200 and user data', async() => {
 				const { statusCode, body } = await request(app)
 					.get(`${URL.USERS.TEST}/${adminId}`)
@@ -100,24 +97,6 @@ describe('Admin CRUD operations', () => {
 		});
 
 		describe('Other user data', () => {
-
-			test('should return 401 and error message (authorization issue)', async() => {
-				const { statusCode, body } = await request(app)
-					.get(`${URL.USERS.TEST}/${userId}`)
-					.set('Authorization', `Beare ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
-				expect(body).toBe(responses.unauthorized);
-			});
-
-			test('should return 498 and error message (wrong token)', async() => {
-				const { statusCode, body } = await request(app)
-					.get(`${URL.USERS.TEST}/${userId}`)
-					.set('Authorization', `Bearer ${userToken} a`);
-
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
-				expect(body).toBe(responses.tokenIssue);
-			});
 
 			test('should return 200 and user data', async() => {
 				const { statusCode, body } = await request(app)
@@ -134,24 +113,6 @@ describe('Admin CRUD operations', () => {
 
 		describe('Own user data', () => {
 
-			test('should return 401 and error message (authorization issue)', async() => {
-				const { statusCode, body } = await request(app)
-					.patch(`${URL.USERS.TEST}/${adminId}`)
-					.set('Authorization', `Beare ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
-				expect(body).toBe(responses.unauthorized);
-			});
-
-			test('should return 498 and error message (wrong token)', async() => {
-				const { statusCode, body } = await request(app)
-					.patch(`${URL.USERS.TEST}/${adminId}`)
-					.set('Authorization', `Bearer ${userToken} a`);
-
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
-				expect(body).toBe(responses.tokenIssue);
-			});
-
 			test('should return 400 and error message (missing fields)', async() => {
 				const { statusCode, body } = await request(app)
 					.patch(`${URL.USERS.TEST}/${adminId}`)
@@ -161,6 +122,7 @@ describe('Admin CRUD operations', () => {
 				expect(statusCode).toBe(statusCodes.badRequest_400);
 				expect(body).toBe(responses.missingFields);
 			});
+
 			test('should return 200 and new user data', async() => {
 				const { statusCode, body } = await request(app)
 					.patch(`${URL.USERS.TEST}/${adminId}`)
@@ -178,24 +140,6 @@ describe('Admin CRUD operations', () => {
 		});
 
 		describe('Other user data', () => {
-
-			test('should return 401 and error message (authorization issue)', async() => {
-				const { statusCode, body } = await request(app)
-					.patch(`${URL.USERS.TEST}/${userId}`)
-					.set('Authorization', `Beare ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
-				expect(body).toBe(responses.unauthorized);
-			});
-
-			test('should return 498 and error message (wrong token)', async() => {
-				const { statusCode, body } = await request(app)
-					.patch(`${URL.USERS.TEST}/${userId}`)
-					.set('Authorization', `Bearer ${userToken} a`);
-
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
-				expect(body).toBe(responses.tokenIssue);
-			});
 
 			test('should return 400 and error message (missing fields)', async() => {
 				const { statusCode, body } = await request(app)
@@ -228,24 +172,6 @@ describe('Admin CRUD operations', () => {
 
 		describe('removing other account', () => {
 
-			test('should return 401 and error message (authorization issue)', async() => {
-				const { statusCode, body } = await request(app)
-					.delete(`${URL.USERS.TEST}/${userId}`)
-					.set('Authorization', `Beare ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
-				expect(body).toBe(responses.unauthorized);
-			});
-
-			test('should return 498 and error message (wrong token)', async() => {
-				const { statusCode, body } = await request(app)
-					.delete(`${URL.USERS.TEST}/${userId}`)
-					.set('Authorization', `Bearer ${userToken} a`);
-
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
-				expect(body).toBe(responses.tokenIssue);
-			});
-
 			test('should return 200 and message with email', async() => {
 				const { statusCode, body } = await request(app)
 					.delete(`${URL.USERS.TEST}/${userId}`)
@@ -259,24 +185,6 @@ describe('Admin CRUD operations', () => {
 		});
 
 		describe('removing own account', () => {
-
-			test('should return 401 and error message (authorization issue)', async() => {
-				const { statusCode, body } = await request(app)
-					.delete(`${URL.USERS.TEST}/${adminId}`)
-					.set('Authorization', `Beare ${userToken}`);
-
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
-				expect(body).toBe(responses.unauthorized);
-			});
-
-			test('should return 498 and error message (wrong token)', async() => {
-				const { statusCode, body } = await request(app)
-					.delete(`${URL.USERS.TEST}/${adminId}`)
-					.set('Authorization', `Bearer ${userToken} a`);
-
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
-				expect(body).toBe(responses.tokenIssue);
-			});
 			
 			test('should return 200 and message with email', async() => {
 				const { statusCode, body } = await request(app)

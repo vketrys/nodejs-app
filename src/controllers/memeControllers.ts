@@ -41,7 +41,7 @@ export const createMeme = async(req: Request, res: Response) => {
 			mediaURL: downloadURL,
 		}, { merge: true });
 
-		return res.status(statusCodes.created_201).send({ message: responses.memeCreated });
+		return res.status(statusCodes.created_201).json({ message: responses.memeCreated, memeId});
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -56,11 +56,12 @@ export const getAllMemes = async(req: Request, res: Response) => {
 			db.collection(Collections.memes).where('isPublished', '==', true);
 
 		const memesSnapshot = await memesRef.get();
+
 		if (memesSnapshot.size < 1) {
-			return res.status(statusCodes.ok_200).send({ message: responses.memesUnpublished });
+			return res.status(statusCodes.ok_200).json(responses.memesUnpublished);
 		}
 
-		return res.status(statusCodes.ok_200).send(memesSnapshot.docs.map((doc) => doc.data()));
+		return res.status(statusCodes.ok_200).json({ memes: memesSnapshot.docs.map((doc) => doc.data()) });
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -82,9 +83,7 @@ export const likeMeme = async(req: Request, res: Response) => {
 		const likeSnap = await likeQuery.get();
 
 		if (likeSnap.docs.length === 0) {
-			await likeRef.add({
-				uid,
-			});
+			await likeRef.add({ uid });
 
 			await memeRef.update({ likes: increment });
 		} else {
@@ -92,10 +91,10 @@ export const likeMeme = async(req: Request, res: Response) => {
 			likeSnap.docs.forEach((doc) => doc.ref.delete());
 			await memeRef.update({ likes: decrement });
 
-			return res.status(statusCodes.forbidden_403).send({ message: responses.memeUnrated });
+			return res.status(statusCodes.ok_200).json(responses.memeUnrated);
 		}
 
-		return res.status(statusCodes.ok_200).send({ message: responses.memeRated });
+		return res.status(statusCodes.ok_200).json(responses.memeRated);
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -109,7 +108,7 @@ export const getMeme = async(req: Request, res: Response) => {
 
 		const memeSnapshot = await memeRef.get();
 
-		return res.status(statusCodes.ok_200).send(memeSnapshot.data());
+		return res.status(statusCodes.ok_200).json(memeSnapshot.data());
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -121,10 +120,16 @@ export const updateMeme = async(req: Request, res: Response) => {
 	const { text } = req.body;
 	const file = req.file;
 
-	const fileType = file.originalname.split('.').at(-1);
-
 	try {
 		const memeRef = db.collection(Collections.memes).doc(memeId);
+
+		if (!file) {
+			await memeRef.update({ text });
+			return res.status(statusCodes.ok_200).json(responses.memeUpdated);
+		}
+
+		const fileType = file.originalname.split('.').at(-1);
+
 		const memeSnap = await memeRef.get();
 		const currentFileName = await memeSnap.data().mediaURL;
 
@@ -142,7 +147,7 @@ export const updateMeme = async(req: Request, res: Response) => {
 			mediaURL,
 		 });
 
-		return res.status(statusCodes.ok_200).send({ message: responses.memeUpdated });
+		return res.status(statusCodes.ok_200).json(responses.memeUpdated);
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -162,7 +167,7 @@ export const deleteMeme = async(req: Request, res: Response) => {
 
 		await memeRef.delete();
 
-		return res.status(statusCodes.ok_200).send({ message: responses.memeDeleted });
+		return res.status(statusCodes.ok_200).json(responses.memeDeleted);
 	} catch (error) {
 		return handleError(res, error);
 	}

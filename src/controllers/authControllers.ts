@@ -11,27 +11,27 @@ import Collections from '../constants/collections';
 dotenv.config();
 
 export const signup = async(req: Request, res: Response): Promise<Response> => {
+	const { displayName, email, password } = req.body;
+
+	//TODO: setting admin email from Firebase 
+	const role = email === process.env.EXAMPLE_EMAIL || email === 'test@gmail.com' 
+		? Roles.admin 
+		: Roles.user;
+
+	if (!email || !password) {
+		return res
+			.status(statusCodes.unprocessableEntity_422)
+			.json(!email ? responses.emailRequired : responses.passwordRequired);
+	}
+
 	try {
-		const { displayName, email, password } = req.body;
-
-		//TODO: setting admin email from Firebase 
-		const role = email === process.env.EXAMPLE_EMAIL || email === 'test@gmail.com' 
-			? Roles.admin 
-			: Roles.user;
-  
-		if (!email || !password) {
-			return res
-				.status(statusCodes.unprocessableEntity_422)
-				.json(!email ? responses.emailRequired : responses.passwordRequired);
-		}
-
 		const { uid } = await admin.auth().createUser({
 			displayName,
 			password,
 			email,
 		});
 
-		await admin.auth().setCustomUserClaims(uid, { role }); 
+		await admin.auth().setCustomUserClaims(uid, { role });
 
 		await db.collection(Collections.users).doc(uid).set({
 			email,
@@ -52,15 +52,15 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 };
 
 export const signin = async(req: Request, res: Response): Promise<Response> => {
-	try {
-		const { email, password } = req.body;
+	const { email, password } = req.body;
   
-		if (!email || !password) {
-			return res
-				.status(statusCodes.unprocessableEntity_422)
-				.json(!email ? responses.emailRequired : responses.passwordRequired);
-		}
-    
+	if (!email || !password) {
+		return res
+			.status(statusCodes.unprocessableEntity_422)
+			.json(!email ? responses.emailRequired : responses.passwordRequired);
+	}
+	
+	try {    
 		await signInWithEmailAndPassword(auth, email, password);
 		const jwtToken = await auth.currentUser.getIdToken();
 
