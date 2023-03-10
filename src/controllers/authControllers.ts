@@ -35,7 +35,7 @@ export const signup = async(req: Request, res: Response): Promise<Response> => {
 
 		await db.collection(Collections.users).doc(uid).set({
 			email,
-			displayName,
+			displayName: displayName ?? '',
 			role,
 		});
 

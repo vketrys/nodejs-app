@@ -1,6 +1,7 @@
 export const errorCodes = {
 	weakPassword: 'auth/weak-password',
 	wrongPassword: 'auth/wrong-password',
+	wrongUserID: 'auth/user-not-found',
 };
 
 export const statusCodes = {

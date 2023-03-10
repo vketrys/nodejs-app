@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { statusCodes } from '../constants/codes';
 import { db } from '../index';
 import Collections from '../constants/collections';
+import handleError from '../utils/handleError';
 
 export const isYoursPost = async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
 	const { memeId } = req.params;
@@ -16,6 +16,6 @@ export const isYoursPost = async(req: Request, res: Response, next: NextFunction
 
 		next();
 	} catch (error) {
-		return res.status(statusCodes.internalServerError_500).send({ message: error.message});
+		return handleError(res, error);
 	}
 };

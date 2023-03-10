@@ -11,12 +11,19 @@
   "scripts": {
     "postinstall": "tsc",
     "start": "node dist/index.js",
+    "start:test": "cross-env NODE_ENV=test npm start",
     "watch-ts": "tsc -w",
     "watch-node": "nodemon ./dist/index.js",
     "lint": "eslint . --ext .ts",
     "format": "eslint . --ext .ts --fix",
-    "test": "jest --detectOpenHandles",
-    "test:coverage": "jest --detectOpenHandles --coverage"
+    "test": "npm run start:test && firebase emulators:exec 'npx jest --detectOpenHandles'",
+    "test:coverage": "npm run start:test && firebase emulators:exec 'npx jest --detectOpenHandles --coverage'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint",
+      "pre-push": "npm run test:coverage"
+    }
   },
   "repository": {
     "type": "git",
@@ -38,9 +45,11 @@
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.46.0",
     "@typescript-eslint/parser": "5.46.0",
+    "cross-env": "7.0.3",
     "eslint": "8.29.0",
     "firebase-server": "1.1.0",
     "firestore-jest-mock": "0.20.0",
+    "husky": "8.0.3",
     "jest": "29.4.1",
     "nodemon": "2.0.20",
     "prettier": "2.8.1",

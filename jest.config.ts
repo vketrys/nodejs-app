@@ -5,4 +5,12 @@ module.exports = {
 	testMatch: ['**/**/*.test.ts'],
 	forceExit: true,
 	verbose: true,
+	coverageThreshold: {
+		global: {
+			lines: 90,
+		},
+		'./src/**/*.ts': {
+			lines: 80,
+		},
+	},
 };

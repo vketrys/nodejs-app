@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { app, auth } from '../src/index';
 import { URL } from '../src/constants/URL';
-import { statusCodes } from '../src/constants/codes';
+import { errorCodes, statusCodes } from '../src/constants/codes';
 import { responses } from '../src/constants/responses';
 import { userCredentials } from './creds';
 
@@ -86,6 +86,15 @@ describe('Admin CRUD operations', () => {
 
 		describe('Own user data', () => {
 
+			test('should return 500 and error message', async() => {
+				const { statusCode, body } = await request(app)
+					.get(`${URL.USERS.TEST}/${adminId}jk`)
+					.set('Authorization', `Bearer ${userToken}`);
+
+				expect(statusCode).toBe(statusCodes.internalServerError_500);
+				expect(body).toHaveProperty('message', errorCodes.wrongUserID);
+			});
+
 			test('should return 200 and user data', async() => {
 				const { statusCode, body } = await request(app)
 					.get(`${URL.USERS.TEST}/${adminId}`)
@@ -97,6 +106,15 @@ describe('Admin CRUD operations', () => {
 		});
 
 		describe('Other user data', () => {
+
+			test('should return 500 and error message', async() => {
+				const { statusCode, body } = await request(app)
+					.get(`${URL.USERS.TEST}/${userId}jk`)
+					.set('Authorization', `Bearer ${userToken}`);
+
+				expect(statusCode).toBe(statusCodes.internalServerError_500);
+				expect(body).toHaveProperty('message', errorCodes.wrongUserID);
+			});
 
 			test('should return 200 and user data', async() => {
 				const { statusCode, body } = await request(app)
