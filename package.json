@@ -20,12 +20,6 @@
     "test:coverage": "npm run start:test && firebase emulators:exec 'npx jest --detectOpenHandles --coverage'",
     "prepare": "husky install"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint",
-      "pre-push": "npm run test:coverage"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vketrys/nodejs-app.git"
