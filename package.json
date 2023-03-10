@@ -17,7 +17,8 @@
     "lint": "eslint . --ext .ts",
     "format": "eslint . --ext .ts --fix",
     "test": "npm run start:test && firebase emulators:exec 'npx jest --detectOpenHandles'",
-    "test:coverage": "npm run start:test && firebase emulators:exec 'npx jest --detectOpenHandles --coverage'"
+    "test:coverage": "npm run start:test && firebase emulators:exec 'npx jest --detectOpenHandles --coverage'",
+    "prepare": "husky install"
   },
   "husky": {
     "hooks": {
