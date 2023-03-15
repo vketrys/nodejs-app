@@ -88,7 +88,7 @@ describe('User meme CRUD operations', () => {
 				const { statusCode, body } = await request(app)[req](url)
 					.set('Authorization', `Beare ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
+				expect(statusCode).toBe(statusCodes.UNAUTHORIZED);
 				expect(body).toBe(responses.unauthorized);
 			});
 
@@ -98,7 +98,7 @@ describe('User meme CRUD operations', () => {
 				const { statusCode, body } = await request(app)[req](url)
 					.set('Authorization', `Bearer ${userToken} a`);
 	
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
+				expect(statusCode).toBe(statusCodes.INVALID_TOKEN);
 				expect(body).toBe(responses.tokenIssue);
 			});
 	});
@@ -111,7 +111,7 @@ describe('User meme CRUD operations', () => {
 				.field('text', memeCreds.text)
 				.set('Authorization', `Bearer ${userToken}`);
 
-			expect(statusCode).toBe(statusCodes.badRequest_400);
+			expect(statusCode).toBe(statusCodes.BAD_REQUEST);
 			expect(body).toBe(responses.missingFile);
 		});
 
@@ -126,7 +126,7 @@ describe('User meme CRUD operations', () => {
 
 			newUserMemeId = memeId;
 
-			expect(statusCode).toBe(statusCodes.created_201);
+			expect(statusCode).toBe(statusCodes.CREATED);
 			expect(message).toBe(responses.memeCreated);
 		});
 	});
@@ -138,7 +138,7 @@ describe('User meme CRUD operations', () => {
 				.get(URL.MEMES.TEST)
 				.set('Authorization', `Bearer ${userToken}`);
 
-			expect(statusCode).toBe(statusCodes.ok_200);
+			expect(statusCode).toBe(statusCodes.OK);
 			expect(body).toBe(responses.memesUnpublished);
 		});
 	});
@@ -152,7 +152,7 @@ describe('User meme CRUD operations', () => {
 					.get(`${URL.MEMES.TEST}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('userId', userId);
 			});
 		});
@@ -164,7 +164,7 @@ describe('User meme CRUD operations', () => {
 					.get(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.forbidden_403);
+				expect(statusCode).toBe(statusCodes.FORBIDDEN);
 				expect(body).toBe(responses.permissionIssue);
 			});
 		});
@@ -181,7 +181,7 @@ describe('User meme CRUD operations', () => {
 					.attach('file', 'tests/memePic.jpg')
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeUpdated);
 			});
 
@@ -191,7 +191,7 @@ describe('User meme CRUD operations', () => {
 					.field('text', memeCreds.textUpdated)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeUpdated);
 			});
 		});
@@ -203,7 +203,7 @@ describe('User meme CRUD operations', () => {
 					.get(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.forbidden_403);
+				expect(statusCode).toBe(statusCodes.FORBIDDEN);
 				expect(body).toBe(responses.permissionIssue);
 			});
 		});
@@ -218,7 +218,7 @@ describe('User meme CRUD operations', () => {
 					.get(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.forbidden_403);
+				expect(statusCode).toBe(statusCodes.FORBIDDEN);
 				expect(body).toBe(responses.permissionIssue);
 			});
 		});
@@ -230,7 +230,7 @@ describe('User meme CRUD operations', () => {
 					.delete(`${URL.MEMES.TEST}/${newUserMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeDeleted);
 			});
 		});
@@ -245,7 +245,7 @@ describe('User meme CRUD operations', () => {
 					.put(`${URL.MEMES.TEST}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeRated);
 			});
 
@@ -254,7 +254,7 @@ describe('User meme CRUD operations', () => {
 					.put(`${URL.MEMES.TEST}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeUnrated);
 			});
 		});
@@ -267,7 +267,7 @@ describe('User meme CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeRated);
 			});
 
@@ -277,7 +277,7 @@ describe('User meme CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeUnrated);
 			});
 		});
@@ -289,7 +289,7 @@ describe('User meme CRUD operations', () => {
 					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeRated);
 			});
 
@@ -298,7 +298,7 @@ describe('User meme CRUD operations', () => {
 					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeUnrated);
 			});
 		});
@@ -311,7 +311,7 @@ describe('User meme CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeRated);
 			});
 
@@ -321,7 +321,7 @@ describe('User meme CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(responses.memeUnrated);
 			});
 		});

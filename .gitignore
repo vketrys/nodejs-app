@@ -3,3 +3,5 @@ dist
 .env
 service-account-file.json
 coverage
+*.log
+.env.test

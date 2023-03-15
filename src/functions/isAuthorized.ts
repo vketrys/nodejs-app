@@ -16,7 +16,7 @@ export const isAuthorized = (opts: { hasRole: Array<'admin' | 'user'>, allowSame
 		if (opts.hasRole.includes(role))
 			return next();
 
-		return res.status(statusCodes.forbidden_403).json(responses.permissionIssue);
+		return res.status(statusCodes.FORBIDDEN).json(responses.permissionIssue);
 	}
 ;
 

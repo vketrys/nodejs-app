@@ -12,7 +12,7 @@ export const getAllUsers = async(req: Request, res: Response) => {
 		const listUsers = await admin.auth().listUsers();
 		const users = listUsers.users.map(mapUser);
 
-		return res.status(statusCodes.ok_200).json({ users });
+		return res.status(statusCodes.OK).json({ users });
 	} catch (err) {
 		return handleError(res, err);
 	}
@@ -23,7 +23,7 @@ export const getUser = async(req: Request, res: Response) => {
 		const { id } = req.params;
 		const user = await admin.auth().getUser(id);
 
-		return res.status(statusCodes.ok_200).json(mapUser(user));
+		return res.status(statusCodes.OK).json(mapUser(user));
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -35,14 +35,14 @@ export const updateUser = async(req: Request, res: Response) => {
 	
 	try {
 		if (!displayName || !password) {
-			return res.status(statusCodes.badRequest_400).json(responses.missingFields);
+			return res.status(statusCodes.BAD_REQUEST).json(responses.missingFields);
 		}
 
 		await admin.auth().updateUser(id, { displayName, password });
-		await db.collection(Collections.users).doc(id).update({ displayName });
+		await db.collection(Collections.USERS).doc(id).update({ displayName });
 		const user = await admin.auth().getUser(id);
 
-		return res.status(statusCodes.ok_200).json(mapUser(user));
+		return res.status(statusCodes.OK).json(mapUser(user));
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -55,9 +55,9 @@ export const removeUser = async(req: Request, res: Response) => {
 		const { email } = await admin.auth().getUser(id);
 
 		await admin.auth().deleteUser(id);
-		await db.collection(Collections.users).doc(id).delete();
+		await db.collection(Collections.USERS).doc(id).delete();
 
-		return res.status(statusCodes.ok_200).json(`${email} ${responses.userRemoved}`);
+		return res.status(statusCodes.OK).json(`${email} ${responses.userRemoved}`);
 	} catch (err) {
 		return handleError(res, err);
 	}

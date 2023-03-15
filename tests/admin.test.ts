@@ -50,7 +50,7 @@ describe('Admin CRUD operations', () => {
 				const { statusCode, body } = await request(app)[req](url)
 					.set('Authorization', `Beare ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
+				expect(statusCode).toBe(statusCodes.UNAUTHORIZED);
 				expect(body).toBe(responses.unauthorized);
 			});
 
@@ -60,7 +60,7 @@ describe('Admin CRUD operations', () => {
 				const { statusCode, body } = await request(app)[req](url)
 					.set('Authorization', `Bearer ${userToken} a`);
 	
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
+				expect(statusCode).toBe(statusCodes.INVALID_TOKEN);
 				expect(body).toBe(responses.tokenIssue);
 			});
 	});
@@ -74,7 +74,7 @@ describe('Admin CRUD operations', () => {
 
 			const { users } = body;
 
-			expect(statusCode).toBe(statusCodes.ok_200);
+			expect(statusCode).toBe(statusCodes.OK);
 			expect(body).toHaveProperty('users');
 			expect(users).toHaveLength(2);
 			expect(users[0].uid === adminId || users[0].uid === userId).toBeTruthy();
@@ -91,7 +91,7 @@ describe('Admin CRUD operations', () => {
 					.get(`${URL.USERS.TEST}/${adminId}jk`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.internalServerError_500);
+				expect(statusCode).toBe(statusCodes.INTERNAL_SERVER_ERROR);
 				expect(body).toHaveProperty('message', errorCodes.wrongUserID);
 			});
 
@@ -100,7 +100,7 @@ describe('Admin CRUD operations', () => {
 					.get(`${URL.USERS.TEST}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('uid', adminId);
 			});
 		});
@@ -112,7 +112,7 @@ describe('Admin CRUD operations', () => {
 					.get(`${URL.USERS.TEST}/${userId}jk`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.internalServerError_500);
+				expect(statusCode).toBe(statusCodes.INTERNAL_SERVER_ERROR);
 				expect(body).toHaveProperty('message', errorCodes.wrongUserID);
 			});
 
@@ -121,7 +121,7 @@ describe('Admin CRUD operations', () => {
 					.get(`${URL.USERS.TEST}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('uid', userId);
 			});
 		});
@@ -137,7 +137,7 @@ describe('Admin CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.admin.updateWrong);
 
-				expect(statusCode).toBe(statusCodes.badRequest_400);
+				expect(statusCode).toBe(statusCodes.BAD_REQUEST);
 				expect(body).toBe(responses.missingFields);
 			});
 
@@ -147,7 +147,7 @@ describe('Admin CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.admin.updateCorrect);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('uid', adminId);
 				expect(body)
 					.toHaveProperty(
@@ -165,7 +165,7 @@ describe('Admin CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.user.updateWrong);
 
-				expect(statusCode).toBe(statusCodes.badRequest_400);
+				expect(statusCode).toBe(statusCodes.BAD_REQUEST);
 				expect(body).toBe(responses.missingFields);
 			});
 
@@ -175,7 +175,7 @@ describe('Admin CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.user.updateCorrect);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('uid', userId);
 				expect(body)
 					.toHaveProperty(
@@ -195,7 +195,7 @@ describe('Admin CRUD operations', () => {
 					.delete(`${URL.USERS.TEST}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(
 					`${userCredentials.user.signIn.email} ${responses.userRemoved}`,
 				);
@@ -209,7 +209,7 @@ describe('Admin CRUD operations', () => {
 					.delete(`${URL.USERS.TEST}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(
 					`${userCredentials.admin.signIn.email} ${responses.userRemoved}`,
 				);

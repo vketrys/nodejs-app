@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { isAuthenticated } from '../functions/isAutheticated';
 import { isAuthorized } from '../functions/isAuthorized';
-import { isYoursPost } from '../functions/isYoursPost';
+import { isUserId } from '../functions/isUserId';
 import { URL } from '../constants/URL';
 import { 
 	createMeme, 
@@ -41,14 +41,14 @@ router.put(URL.MEMES.PARAMS, [
 
 router.get(URL.MEMES.PARAMS, [
 	isAuthenticated,
-	isYoursPost,
+	isUserId,
 	isAuthorized({ hasRole: ['admin'], allowSameUser: true }),
 	getMeme,
 ]);
 
 router.patch(URL.MEMES.PARAMS, [
 	isAuthenticated,
-	isYoursPost,
+	isUserId,
 	isAuthorized({ hasRole: [], allowSameUser: true }),
 	upload,
 	updateMeme,
@@ -56,7 +56,7 @@ router.patch(URL.MEMES.PARAMS, [
 
 router.delete(URL.MEMES.PARAMS, [
 	isAuthenticated,
-	isYoursPost,
+	isUserId,
 	isAuthorized({ hasRole: ['admin'], allowSameUser: true }),
 	deleteMeme,
 ]);

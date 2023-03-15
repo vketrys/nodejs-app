@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 export const app: Express = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(cors({ origin: true }));
@@ -33,7 +33,7 @@ app.use(cors({ origin: true }));
 app.use(URL.ROOT, authRoutes, memeRoutes);
 
 if (process.env.NODE_ENV !== 'test') {
-	app.listen(port, () => {
-		process.stdout.write(`app listening on port ${port}`);
+	app.listen(PORT, () => {
+		process.stdout.write(`app listening on port ${PORT}`);
 	});
 }

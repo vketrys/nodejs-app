@@ -21,7 +21,7 @@ describe('Firebase authorization', () => {
 					.post(`/api${URL.AUTH.SIGNUP}`)
 					.send(userCredentials.withoutEmail);
 
-				expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
+				expect(statusCode).toBe(statusCodes.UNPROCESSIBLE_ENTITY);
 				expect(body).toBe(responses.emailRequired);
 			});
 
@@ -30,7 +30,7 @@ describe('Firebase authorization', () => {
 					.post(`/api${URL.AUTH.SIGNUP}`)
 					.send(userCredentials.withoutPassword);
 
-				expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
+				expect(statusCode).toBe(statusCodes.UNPROCESSIBLE_ENTITY);
 				expect(body).toBe(responses.passwordRequired);
 			});
 		});
@@ -42,7 +42,7 @@ describe('Firebase authorization', () => {
 					.post(`/api${URL.AUTH.SIGNUP}`)
 					.send(userCredentials.admin.signUp);
 
-				expect(statusCode).toBe(statusCodes.created_201);
+				expect(statusCode).toBe(statusCodes.CREATED);
 
 				await request(app)
 					.post(`/api${URL.AUTH.SIGNIN}`)
@@ -51,7 +51,7 @@ describe('Firebase authorization', () => {
 				const userEmail = auth.currentUser?.email;
 
 				expect(body).toHaveProperty('email', userEmail);
-				expect(body).toHaveProperty('role', Roles.admin);
+				expect(body).toHaveProperty('role', Roles.ADMIN);
 			});
 		});
 
@@ -62,9 +62,9 @@ describe('Firebase authorization', () => {
 					.post(`/api${URL.AUTH.SIGNUP}`)
 					.send(userCredentials.user.signUp);
 
-				expect(statusCode).toBe(statusCodes.created_201);
+				expect(statusCode).toBe(statusCodes.CREATED);
 				expect(body).toHaveProperty('email', userCredentials.user.signIn.email);
-				expect(body).toHaveProperty('role', Roles.user);
+				expect(body).toHaveProperty('role', Roles.USER);
 			});
 		});
 	});
@@ -78,7 +78,7 @@ describe('Firebase authorization', () => {
 					.post(`/api${URL.AUTH.SIGNIN}`)
 					.send(userCredentials.withoutEmail);
 
-				expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
+				expect(statusCode).toBe(statusCodes.UNPROCESSIBLE_ENTITY);
 				expect(body).toBe(responses.emailRequired);
 			});
 
@@ -87,7 +87,7 @@ describe('Firebase authorization', () => {
 					.post(`/api${URL.AUTH.SIGNIN}`)
 					.send(userCredentials.withoutPassword);
 
-				expect(statusCode).toBe(statusCodes.unprocessableEntity_422);
+				expect(statusCode).toBe(statusCodes.UNPROCESSIBLE_ENTITY);
 				expect(body).toBe(responses.passwordRequired);
 			});
 		});
@@ -102,7 +102,7 @@ describe('Firebase authorization', () => {
 				const jwtToken = await auth.currentUser?.getIdToken();
 				userId = auth.currentUser?.uid;
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(jwtToken);
 			});
 
@@ -115,7 +115,7 @@ describe('Firebase authorization', () => {
 				userToken = jwtToken;
 				adminId = auth.currentUser?.uid;
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toBe(jwtToken);
 			});
 		});

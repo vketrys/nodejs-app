@@ -15,13 +15,13 @@ export const createMeme = async(req: Request, res: Response) => {
 	const { uid } = res.locals;
 
 	if (!file) {
-		return res.status(statusCodes.badRequest_400).json(responses.missingFile);
+		return res.status(statusCodes.BAD_REQUEST).json(responses.missingFile);
 	}
 
 	const fileType = file.originalname.split('.').at(-1);
 
 	try {
-		const memeRef = await db.collection(Collections.memes).add({
+		const memeRef = await db.collection(Collections.MEMES).add({
 			text,
 			isPublished: false,
 			likes: 0,
@@ -37,11 +37,11 @@ export const createMeme = async(req: Request, res: Response) => {
 		const snapshot = await uploadBytes(mediaRef, file.buffer);
 		const downloadURL = snapshot.ref.fullPath;
 
-		await db.collection(Collections.memes).doc(memeId).set({
+		await db.collection(Collections.MEMES).doc(memeId).set({
 			mediaURL: downloadURL,
 		}, { merge: true });
 
-		return res.status(statusCodes.created_201).json({ message: responses.memeCreated, memeId});
+		return res.status(statusCodes.CREATED).json({ message: responses.memeCreated, memeId});
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -51,17 +51,17 @@ export const getAllMemes = async(req: Request, res: Response) => {
 	const { role } = res.locals;
 
 	try {
-		const memesRef = role === Roles.admin ? 
-			db.collection(Collections.memes) : 
-			db.collection(Collections.memes).where('isPublished', '==', true);
+		const memesRef = role === Roles.ADMIN ? 
+			db.collection(Collections.MEMES) : 
+			db.collection(Collections.MEMES).where('isPublished', '==', true);
 
 		const memesSnapshot = await memesRef.get();
 
 		if (memesSnapshot.size < 1) {
-			return res.status(statusCodes.ok_200).json(responses.memesUnpublished);
+			return res.status(statusCodes.OK).json(responses.memesUnpublished);
 		}
 
-		return res.status(statusCodes.ok_200).json({ memes: memesSnapshot.docs.map((doc) => doc.data()) });
+		return res.status(statusCodes.OK).json({ memes: memesSnapshot.docs.map((doc) => doc.data()) });
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -73,9 +73,9 @@ export const likeMeme = async(req: Request, res: Response) => {
 	const { count } = req.body;
 
 	try {
-		const likeRef = db.collection(Collections.memes).doc(memeId).collection(Collections.likes);
+		const likeRef = db.collection(Collections.MEMES).doc(memeId).collection(Collections.LIKES);
 
-		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeRef = db.collection(Collections.MEMES).doc(memeId);
 		const increment = admin.firestore.FieldValue.increment(count || 1);
 		const decrement = admin.firestore.FieldValue.increment(-count || -1);
 
@@ -91,10 +91,10 @@ export const likeMeme = async(req: Request, res: Response) => {
 			likeSnap.docs.forEach((doc) => doc.ref.delete());
 			await memeRef.update({ likes: decrement });
 
-			return res.status(statusCodes.ok_200).json(responses.memeUnrated);
+			return res.status(statusCodes.OK).json(responses.memeUnrated);
 		}
 
-		return res.status(statusCodes.ok_200).json(responses.memeRated);
+		return res.status(statusCodes.OK).json(responses.memeRated);
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -104,11 +104,11 @@ export const getMeme = async(req: Request, res: Response) => {
 	const { memeId } = req.params;
 
 	try {
-		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeRef = db.collection(Collections.MEMES).doc(memeId);
 
 		const memeSnapshot = await memeRef.get();
 
-		return res.status(statusCodes.ok_200).json(memeSnapshot.data());
+		return res.status(statusCodes.OK).json(memeSnapshot.data());
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -121,11 +121,11 @@ export const updateMeme = async(req: Request, res: Response) => {
 	const file = req.file;
 
 	try {
-		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeRef = db.collection(Collections.MEMES).doc(memeId);
 
 		if (!file) {
 			await memeRef.update({ text });
-			return res.status(statusCodes.ok_200).json(responses.memeUpdated);
+			return res.status(statusCodes.OK).json(responses.memeUpdated);
 		}
 
 		const fileType = file.originalname.split('.').at(-1);
@@ -147,7 +147,7 @@ export const updateMeme = async(req: Request, res: Response) => {
 			mediaURL,
 		 });
 
-		return res.status(statusCodes.ok_200).json(responses.memeUpdated);
+		return res.status(statusCodes.OK).json(responses.memeUpdated);
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -157,7 +157,7 @@ export const deleteMeme = async(req: Request, res: Response) => {
 	const { memeId } = req.params;
 
 	try {
-		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeRef = db.collection(Collections.MEMES).doc(memeId);
 		const memeSnap = await memeRef.get();
 		const fileName = await memeSnap.data().mediaURL;
 
@@ -167,7 +167,7 @@ export const deleteMeme = async(req: Request, res: Response) => {
 
 		await memeRef.delete();
 
-		return res.status(statusCodes.ok_200).json(responses.memeDeleted);
+		return res.status(statusCodes.OK).json(responses.memeDeleted);
 	} catch (error) {
 		return handleError(res, error);
 	}

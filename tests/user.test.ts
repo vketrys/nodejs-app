@@ -50,7 +50,7 @@ describe('User CRUD operations', () => {
 				const { statusCode, body } = await request(app)[req](url)
 					.set('Authorization', `Beare ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.unauthorized_401);
+				expect(statusCode).toBe(statusCodes.UNAUTHORIZED);
 				expect(body).toBe(responses.unauthorized);
 			});
 
@@ -60,7 +60,7 @@ describe('User CRUD operations', () => {
 				const { statusCode, body } = await request(app)[req](url)
 					.set('Authorization', `Bearer ${userToken} a`);
 	
-				expect(statusCode).toBe(statusCodes.invalidToken_498);
+				expect(statusCode).toBe(statusCodes.INVALID_TOKEN);
 				expect(body).toBe(responses.tokenIssue);
 			});
 	});
@@ -72,7 +72,7 @@ describe('User CRUD operations', () => {
 				.get(URL.USERS.TEST)
 				.set('Authorization', `Bearer ${userToken}`);
 
-			expect(statusCode).toBe(statusCodes.forbidden_403);
+			expect(statusCode).toBe(statusCodes.FORBIDDEN);
 			expect(body).toBe(responses.permissionIssue);
 		});
 	});
@@ -86,7 +86,7 @@ describe('User CRUD operations', () => {
 					.get(`${URL.USERS.TEST}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('uid', userId);
 			});
 		});
@@ -98,7 +98,7 @@ describe('User CRUD operations', () => {
 					.get(`${URL.USERS.TEST}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.forbidden_403);
+				expect(statusCode).toBe(statusCodes.FORBIDDEN);
 				expect(body).toBe(responses.permissionIssue);
 			});
 		});
@@ -114,7 +114,7 @@ describe('User CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.user.updateWrong);
 
-				expect(statusCode).toBe(statusCodes.badRequest_400);
+				expect(statusCode).toBe(statusCodes.BAD_REQUEST);
 				expect(body).toBe(responses.missingFields);
 			});
 
@@ -124,7 +124,7 @@ describe('User CRUD operations', () => {
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.user.updateCorrect);
 
-				expect(statusCode).toBe(statusCodes.ok_200);
+				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('uid', userId);
 				expect(body)
 					.toHaveProperty(
@@ -141,7 +141,7 @@ describe('User CRUD operations', () => {
 					.get(`${URL.USERS.TEST}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.forbidden_403);
+				expect(statusCode).toBe(statusCodes.FORBIDDEN);
 				expect(body).toBe(responses.permissionIssue);
 			});
 		});
@@ -156,7 +156,7 @@ describe('User CRUD operations', () => {
 					.get(`${URL.USERS.TEST}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.forbidden_403);
+				expect(statusCode).toBe(statusCodes.FORBIDDEN);
 				expect(body).toBe(responses.permissionIssue);
 			});
 		});
@@ -168,7 +168,7 @@ describe('User CRUD operations', () => {
 					.delete(`${URL.USERS.TEST}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
-				expect(statusCode).toBe(statusCodes.forbidden_403);
+				expect(statusCode).toBe(statusCodes.FORBIDDEN);
 				expect(body).toBe(responses.permissionIssue);
 			});
 		});
