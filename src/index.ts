@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import firebaseApp from './config/firebase';
 
-dotenv.config();
+dotenv.config({ path: `./.env.${process.env.NODE_ENV}` });
 
 admin.initializeApp();
 
@@ -19,9 +19,9 @@ export const db = getFirestore();
 export const storage = getStorage();
 export const auth = getAuth(firebaseApp);
 
-if (process.env.NODE_ENV === 'test') {
-	connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-	connectStorageEmulator(storage, '127.0.0.1', 9199);
+if (process.env.NODE_ENV === 'test') {	
+	connectAuthEmulator(auth, process.env.APP_AUTH_EMULATOR_HOST, { disableWarnings: true });
+	connectStorageEmulator(storage, process.env.APP_STORAGE_EMULATOR_HOST, 9199);
 }
 
 export const app: Express = express();
