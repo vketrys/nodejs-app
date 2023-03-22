@@ -18,7 +18,7 @@ describe('Firebase authorization', () => {
 			test('should return 422 and error message (without email)', async() => {
 
 				const { statusCode, body } = await request(app)
-					.post(`/api${URL.AUTH.SIGNUP}`)
+					.post(URL.ROOT + URL.AUTH.SIGNUP)
 					.send(userCredentials.withoutEmail);
 
 				expect(statusCode).toBe(statusCodes.UNPROCESSIBLE_ENTITY);
@@ -27,7 +27,7 @@ describe('Firebase authorization', () => {
 
 			test('should return 422 and error message (without password)', async() => {
 				const { statusCode, body } = await request(app)
-					.post(`/api${URL.AUTH.SIGNUP}`)
+					.post(URL.ROOT + URL.AUTH.SIGNUP)
 					.send(userCredentials.withoutPassword);
 
 				expect(statusCode).toBe(statusCodes.UNPROCESSIBLE_ENTITY);
@@ -39,13 +39,13 @@ describe('Firebase authorization', () => {
 
 			test('should return 201 and email (admin)', async() => {
 				const { statusCode, body } = await request(app)
-					.post(`/api${URL.AUTH.SIGNUP}`)
+					.post(URL.ROOT + URL.AUTH.SIGNUP)
 					.send(userCredentials.admin.signUp);
 
 				expect(statusCode).toBe(statusCodes.CREATED);
 
 				await request(app)
-					.post(`/api${URL.AUTH.SIGNIN}`)
+					.post(URL.ROOT + URL.AUTH.SIGNIN)
 					.send(userCredentials.admin.signIn);
 
 				const userEmail = auth.currentUser?.email;
@@ -59,7 +59,7 @@ describe('Firebase authorization', () => {
 
 			test('should return 201 and email (user)', async() => {
 				const { statusCode, body } = await request(app)
-					.post(`/api${URL.AUTH.SIGNUP}`)
+					.post(`${URL.ROOT + URL.AUTH.SIGNUP}`)
 					.send(userCredentials.user.signUp);
 
 				expect(statusCode).toBe(statusCodes.CREATED);
@@ -75,7 +75,7 @@ describe('Firebase authorization', () => {
 			
 			test('should return 422 and error message (without email)', async() => {
 				const { statusCode, body } = await request(app)
-					.post(`/api${URL.AUTH.SIGNIN}`)
+					.post(`${URL.ROOT + URL.AUTH.SIGNIN}`)
 					.send(userCredentials.withoutEmail);
 
 				expect(statusCode).toBe(statusCodes.UNPROCESSIBLE_ENTITY);
@@ -84,7 +84,7 @@ describe('Firebase authorization', () => {
 
 			test('should return 422 and error message (without password)', async() => {
 				const { statusCode, body } = await request(app)
-					.post(`/api${URL.AUTH.SIGNIN}`)
+					.post(`${URL.ROOT + URL.AUTH.SIGNIN}`)
 					.send(userCredentials.withoutPassword);
 
 				expect(statusCode).toBe(statusCodes.UNPROCESSIBLE_ENTITY);
@@ -96,7 +96,7 @@ describe('Firebase authorization', () => {
 
 			test('should return 201 and token (user)', async() => {
 				const { statusCode, body } = await request(app)
-					.post(`/api${URL.AUTH.SIGNIN}`)
+					.post(`${URL.ROOT + URL.AUTH.SIGNIN}`)
 					.send(userCredentials.user.signIn);
 				
 				const jwtToken = await auth.currentUser?.getIdToken();
@@ -108,7 +108,7 @@ describe('Firebase authorization', () => {
 
 			test('should return 201 and token (admin)', async() => {
 				const { statusCode, body } = await request(app)
-					.post(`/api${URL.AUTH.SIGNIN}`)
+					.post(`${URL.ROOT + URL.AUTH.SIGNIN}`)
 					.send(userCredentials.admin.signIn);
 				
 				const jwtToken = await auth.currentUser?.getIdToken();
@@ -123,11 +123,11 @@ describe('Firebase authorization', () => {
 
 	afterAll(async() => {
 		await request(app)
-			.delete(`${URL.USERS.TEST}/${userId}`)
+			.delete(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
 			.set('Authorization', `Bearer ${userToken}`);
 
 		await request(app)
-			.delete(`${URL.USERS.TEST}/${adminId}`)
+			.delete(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
 			.set('Authorization', `Bearer ${userToken}`);
 	});
 });

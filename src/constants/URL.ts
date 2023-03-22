@@ -7,11 +7,9 @@ export const URL = {
 	USERS: {
 		ROOT: '/users',
 		PARAMS: '/users/:id',
-		TEST: '/api/users',
 	},
 	MEMES: {
 		ROOT: '/memes',
 		PARAMS: '/memes/:memeId',
-		TEST: '/api/memes',
 	},
 };

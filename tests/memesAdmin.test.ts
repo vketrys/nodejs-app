@@ -17,33 +17,33 @@ describe('User meme CRUD operations', () => {
 	let userMemeId: string | undefined;
 
 	const reqCases = [
-		['post', URL.MEMES.TEST],
-		['get', URL.MEMES.TEST],
-		['get', `${URL.MEMES.TEST}/${adminMemeId}`],
-		['get', `${URL.MEMES.TEST}/${userMemeId}`],
-		['patch', `${URL.MEMES.TEST}/${adminMemeId}`],
-		['patch', `${URL.MEMES.TEST}/${userMemeId}`],
-		['delete', `${URL.MEMES.TEST}/${adminMemeId}`],
-		['delete', `${URL.MEMES.TEST}/${userMemeId}`],
-		['put', `${URL.MEMES.TEST}/${adminMemeId}`],
-		['put', `${URL.MEMES.TEST}/${userMemeId}`],
+		['post', URL.ROOT + URL.MEMES.ROOT],
+		['get', URL.ROOT + URL.MEMES.ROOT],
+		['get', `${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`],
+		['get', `${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`],
+		['patch', `${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`],
+		['patch', `${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`],
+		['delete', `${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`],
+		['delete', `${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`],
+		['put', `${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`],
+		['put', `${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`],
 	];
 
 	beforeAll(async() => {
 		const response = await request(app)
-			.post(`/api${URL.AUTH.SIGNUP}`)
+			.post(URL.ROOT + URL.AUTH.SIGNUP)
 			.send(userCredentials.admin.signUp);
 		
 		adminId = response.body.uid;
 
 		await request(app)
-			.post(`/api${URL.AUTH.SIGNIN}`)
+			.post(URL.ROOT + URL.AUTH.SIGNIN)
 			.send(userCredentials.admin.signIn);
 
 		userToken = await auth.currentUser?.getIdToken();
 
 	 	const res = await request(app)
-			.post(URL.MEMES.TEST)
+			.post(URL.ROOT + URL.MEMES.ROOT)
 			.field('text', memeCreds.text)
 			.attach('file', 'tests/memePic.jpg')
 			.set('Authorization', `Bearer ${userToken}`);
@@ -53,19 +53,19 @@ describe('User meme CRUD operations', () => {
 
 	beforeAll(async() => {
 		const { body } = await request(app)
-			.post(`/api${URL.AUTH.SIGNUP}`)
+			.post(URL.ROOT + URL.AUTH.SIGNUP)
 			.send(userCredentials.user.signUp);
 
 		userId = body.uid;
 
 		await request(app)
-			.post(`/api${URL.AUTH.SIGNIN}`)
+			.post(URL.ROOT + URL.AUTH.SIGNIN)
 			.send(userCredentials.user.signIn);
 
 		userToken = await auth.currentUser?.getIdToken();
 
 	  const res = await request(app)
-			.post(URL.MEMES.TEST)
+			.post(URL.ROOT + URL.MEMES.ROOT)
 			.field('text', memeCreds.text)
 			.attach('file', 'tests/memePic.jpg')
 			.set('Authorization', `Bearer ${userToken}`);
@@ -75,7 +75,7 @@ describe('User meme CRUD operations', () => {
 
 	beforeEach(async() => {
 		await request(app)
-			.post(`/api${URL.AUTH.SIGNIN}`)
+			.post(URL.ROOT + URL.AUTH.SIGNIN)
 			.send(userCredentials.admin.signIn);
 
 		userToken = await auth.currentUser?.getIdToken();
@@ -108,7 +108,7 @@ describe('User meme CRUD operations', () => {
 
 		test('should return 400 and error message (missing file)', async() => {
 			const { statusCode, body } = await request(app)
-				.post(URL.MEMES.TEST)
+				.post(URL.ROOT + URL.MEMES.ROOT)
 				.field('text', memeCreds.text)
 				.set('Authorization', `Bearer ${userToken}`);
 
@@ -118,7 +118,7 @@ describe('User meme CRUD operations', () => {
 
 		test('should return 201 and success message', async() => {
 			const { statusCode, body } = await request(app)
-				.post(URL.MEMES.TEST)
+				.post(URL.ROOT + URL.MEMES.ROOT)
 				.field('text', memeCreds.text)
 				.attach('file', 'tests/memePic.jpg')
 				.set('Authorization', `Bearer ${userToken}`);
@@ -136,7 +136,7 @@ describe('User meme CRUD operations', () => {
 
 		test('should return 200 and memes array', async() => {
 			const { statusCode, body } = await request(app)
-				.get(URL.MEMES.TEST)
+				.get(URL.ROOT + URL.MEMES.ROOT)
 				.set('Authorization', `Bearer ${userToken}`);
 
 			const { memes } = body;
@@ -155,7 +155,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and meme', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.MEMES.TEST}/${newAdminMemeId}`)
+					.get(`${URL.ROOT + URL.MEMES.ROOT}/${newAdminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -167,7 +167,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and meme', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.MEMES.TEST}/${userMemeId}`)
+					.get(`${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -182,7 +182,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (text and file)', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.MEMES.TEST}/${newAdminMemeId}`)
+					.patch(`${URL.ROOT + URL.MEMES.ROOT}/${newAdminMemeId}`)
 					.field('text', memeCreds.text)
 					.attach('file', 'tests/memePic.jpg')
 					.set('Authorization', `Bearer ${userToken}`);
@@ -193,7 +193,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (only text)', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.MEMES.TEST}/${newAdminMemeId}`)
+					.patch(`${URL.ROOT + URL.MEMES.ROOT}/${newAdminMemeId}`)
 					.field('text', memeCreds.text)
 					.set('Authorization', `Bearer ${userToken}`);
 
@@ -206,7 +206,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 403 and error message (permission issue)', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.MEMES.TEST}/${userMemeId}`)
+					.patch(`${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.FORBIDDEN);
@@ -221,7 +221,7 @@ describe('User meme CRUD operations', () => {
 			
 			test('should return 200 and success message (like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.put(`${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -230,7 +230,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (remove like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.put(`${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -242,7 +242,7 @@ describe('User meme CRUD operations', () => {
 			
 			test('should return 200 and success message (like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.put(`${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
@@ -252,7 +252,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (remove like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${adminMemeId}`)
+					.put(`${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
@@ -265,7 +265,7 @@ describe('User meme CRUD operations', () => {
 			
 			test('should return 200 and success message (like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${userMemeId}`)
+					.put(`${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -274,7 +274,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (remove like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${userMemeId}`)
+					.put(`${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -286,7 +286,7 @@ describe('User meme CRUD operations', () => {
 			
 			test('should return 200 and success message (like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${userMemeId}`)
+					.put(`${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
@@ -296,7 +296,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message (remove like)', async() => {
 				const { statusCode, body } = await request(app)
-					.put(`${URL.MEMES.TEST}/${userMemeId}`)
+					.put(`${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(memeCreds.superLike);
 
@@ -312,7 +312,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message', async() => {
 				const { statusCode, body } = await request(app)
-					.delete(`${URL.MEMES.TEST}/${userMemeId}`)
+					.delete(`${URL.ROOT + URL.MEMES.ROOT}/${userMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -324,7 +324,7 @@ describe('User meme CRUD operations', () => {
 
 			test('should return 200 and success message', async() => {
 				const { statusCode, body } = await request(app)
-					.delete(`${URL.MEMES.TEST}/${newAdminMemeId}`)
+					.delete(`${URL.ROOT + URL.MEMES.ROOT}/${newAdminMemeId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -335,21 +335,21 @@ describe('User meme CRUD operations', () => {
 
 	afterAll(async() => {
 		await request(app)
-			.post(`/api${URL.AUTH.SIGNIN}`)
+			.post(URL.ROOT + URL.AUTH.SIGNIN)
 			.send(userCredentials.admin.signIn);
 
 		userToken = await auth.currentUser?.getIdToken();
 
 		await request(app)
-			.delete(`${URL.MEMES.TEST}/${adminMemeId}`)
+			.delete(`${URL.ROOT + URL.MEMES.ROOT}/${adminMemeId}`)
 			.set('Authorization', `Bearer ${userToken}`);
 
 		await request(app)
-			.delete(`${URL.USERS.TEST}/${userId}`)
+			.delete(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
 			.set('Authorization', `Bearer ${userToken}`);
 
 		await request(app)
-			.delete(`${URL.USERS.TEST}/${adminId}`)
+			.delete(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
 			.set('Authorization', `Bearer ${userToken}`);
 	});
 });
