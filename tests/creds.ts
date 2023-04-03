@@ -41,6 +41,14 @@ export const userCredentials = {
 			displayName: 'user updated',
 		},
 	},
+	profane: {
+		wrong: {
+			words: [],
+		},
+		correct: {
+			words: ['profane'],
+		},
+	},
 };
 
 export const memeCreds = {

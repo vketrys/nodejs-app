@@ -173,6 +173,20 @@ describe('User CRUD operations', () => {
 			});
 		});
 	});
+
+	describe('PUT words to profane dictionary', () => {
+		
+		test('should return 403 and error message (permission issue)', async() => {
+			const { statusCode, body } = await request(app)
+				.put(URL.ROOT + URL.ADMIN.ROOT + URL.ADMIN.PROFANE)
+				.set('Authorization', `Bearer ${userToken}`)
+				.send(userCredentials.profane.correct);
+
+			expect(statusCode).toBe(statusCodes.FORBIDDEN);
+			expect(body).toBe(responses.permissionIssue);
+		});
+	});
+
 	afterAll(async() => {
 		await request(app)
 			.post(URL.ROOT + URL.AUTH.SIGNIN)

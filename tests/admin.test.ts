@@ -186,6 +186,29 @@ describe('Admin CRUD operations', () => {
 		});
 	});
 
+	describe('PUT words to profane dictionary', () => {
+		
+		test('should return 400 and error message (empty array)', async() => {
+			const { statusCode, body } = await request(app)
+				.put(URL.ROOT + URL.ADMIN.ROOT + URL.ADMIN.PROFANE)
+				.set('Authorization', `Bearer ${userToken}`)
+				.send(userCredentials.profane.wrong);
+
+			expect(statusCode).toBe(statusCodes.BAD_REQUEST);
+			expect(body).toBe(responses.noEmptyArray);
+		});
+
+		test('should return 200 and new user data', async() => {
+			const { statusCode, body } = await request(app)
+				.put(URL.ROOT + URL.ADMIN.ROOT + URL.ADMIN.PROFANE)
+				.set('Authorization', `Bearer ${userToken}`)
+				.send(userCredentials.profane.correct);
+
+			expect(statusCode).toBe(statusCodes.OK);
+			expect(body).toBe(responses.wordsAdded);
+		});
+	});
+
 	describe('REMOVE user', () => {
 
 		describe('removing other account', () => {

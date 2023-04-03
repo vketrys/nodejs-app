@@ -11,11 +11,11 @@ exports.profaneIdentifier = functions.firestore
 		const profaneFilter = new Filter();
 		const profaneWords: string[] = [];
 
-		profaneDatabase.docs.forEach((doc) => profaneWords.push(...doc.data().words));
+		profaneDatabase.docs.forEach((doc) => profaneWords.push(...doc.data().profaneWords));
 
 		profaneFilter.addWords(...profaneWords);
 
-		const memeText = snapshot.data().text;
+		const memeText = snapshot.data().text.toLowerCase();
 		const memeWords: string[] = memeText.split(' ');
 
 		let profaneIndicator = false;
@@ -25,10 +25,6 @@ exports.profaneIdentifier = functions.firestore
 				profaneIndicator = true;
 			}
 		});
-
-		// eslint-disable-next-line no-console
-		console.log('profane', profaneWords);
-		
 
 		if (profaneIndicator) {
 			await snapshot.ref.update({ likes: admin.firestore.FieldValue.increment(-3) });

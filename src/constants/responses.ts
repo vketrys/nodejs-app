@@ -14,5 +14,7 @@ export const responses = {
 	memeUpdated: 'Meme was updated successfully!',
 	memeDeleted: 'Meme was deleted successfully!',
 	memesUnpublished: 'There are no published memes',
+	wordsAdded: 'Profane dictionary was updated successfully!',
+	noEmptyArray: 'Must include at least one word',
 };
 

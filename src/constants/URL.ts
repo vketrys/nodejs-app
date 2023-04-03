@@ -12,4 +12,8 @@ export const URL = {
 		ROOT: '/memes',
 		PARAMS: '/memes/:memeId',
 	},
+	ADMIN: {
+		ROOT: '/admin',
+		PROFANE: '/profane',
+	},
 };
