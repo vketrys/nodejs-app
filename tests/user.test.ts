@@ -12,12 +12,12 @@ describe('User CRUD operations', () => {
 
 	const reqCases = [
 		['get', URL.ROOT + URL.USERS.ROOT],
-		['get', `${URL.ROOT + URL.USERS.ROOT}/${adminId}`],
-		['get', `${URL.ROOT + URL.USERS.ROOT}/${userId}`],
-		['patch', `${URL.ROOT + URL.USERS.ROOT}/${adminId}`],
-		['patch', `${URL.ROOT + URL.USERS.ROOT}/${userId}`],
-		['delete', `${URL.ROOT + URL.USERS.ROOT}/${adminId}`],
-		['delete', `${URL.ROOT + URL.USERS.ROOT}/${userId}`],
+		['get', `${URL.ROOT}${URL.USERS.ROOT}/${adminId}`],
+		['get', `${URL.ROOT}${URL.USERS.ROOT}/${userId}`],
+		['patch', `${URL.ROOT}${URL.USERS.ROOT}/${adminId}`],
+		['patch', `${URL.ROOT}${URL.USERS.ROOT}/${userId}`],
+		['delete', `${URL.ROOT}${URL.USERS.ROOT}/${adminId}`],
+		['delete', `${URL.ROOT}${URL.USERS.ROOT}/${userId}`],
 	];
 
 	beforeAll(async() => {
@@ -83,7 +83,7 @@ describe('User CRUD operations', () => {
 
 			test('should return 200 and user data', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+					.get(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -95,7 +95,7 @@ describe('User CRUD operations', () => {
 
 			test('should return 403 and error message (permission issue)', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
+					.get(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.FORBIDDEN);
@@ -110,7 +110,7 @@ describe('User CRUD operations', () => {
 
 			test('should return 400 and error message (missing fields)', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+					.patch(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.user.updateWrong);
 
@@ -120,7 +120,7 @@ describe('User CRUD operations', () => {
 
 			test('should return 200 and new user data', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+					.patch(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.user.updateCorrect);
 
@@ -138,7 +138,7 @@ describe('User CRUD operations', () => {
 
 			test('should return 403 and error message (permission issue)', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
+					.get(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.FORBIDDEN);
@@ -153,7 +153,7 @@ describe('User CRUD operations', () => {
 
 			test('should return 403 and error message (permission issue)', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
+					.get(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.FORBIDDEN);
@@ -165,7 +165,7 @@ describe('User CRUD operations', () => {
 
 			test('should return 403 and error message (permission issue)', async() => {
 				const { statusCode, body } = await request(app)
-					.delete(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+					.delete(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.FORBIDDEN);
@@ -195,11 +195,11 @@ describe('User CRUD operations', () => {
 		userToken = await auth.currentUser?.getIdToken();
 
 		await request(app)
-			.delete(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+			.delete(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 			.set('Authorization', `Bearer ${userToken}`);
 
 		await request(app)
-			.delete(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
+			.delete(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}`)
 			.set('Authorization', `Bearer ${userToken}`);
 	});
 });
