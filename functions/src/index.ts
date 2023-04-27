@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import Filter = require('bad-words');
 
 admin.initializeApp();
@@ -27,7 +28,7 @@ exports.profaneIdentifier = functions.firestore
 		});
 
 		if (profaneIndicator) {
-			await snapshot.ref.update({ likes: admin.firestore.FieldValue.increment(-3) });
+			await snapshot.ref.update({ likes: FieldValue.increment(-3) });
 		}
 	});
 

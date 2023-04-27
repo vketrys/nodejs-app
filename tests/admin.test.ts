@@ -198,7 +198,7 @@ describe('Admin CRUD operations', () => {
 			expect(body).toBe(responses.noEmptyArray);
 		});
 
-		test('should return 200 and new user data', async() => {
+		test('should return 200 and message', async() => {
 			const { statusCode, body } = await request(app)
 				.put(URL.ROOT + URL.ADMIN.ROOT + URL.ADMIN.PROFANE)
 				.set('Authorization', `Bearer ${userToken}`)

@@ -54,6 +54,7 @@ export const userCredentials = {
 export const memeCreds = {
 	text: 'meme text',
 	textUpdated: 'updated meme text',
+	profaneText: 'meme text xxx',
 	superLike: {
 		count: 10,
 	},

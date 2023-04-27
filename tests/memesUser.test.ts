@@ -14,6 +14,7 @@ describe('User meme CRUD operations', () => {
 	let adminMemeId: string | undefined;
 	let userMemeId: string | undefined;
 	let newUserMemeId: string | undefined;
+	let profaneMemeId: string | undefined;
 
 	const reqCases = [
 		['post', URL.ROOT + URL.MEMES.ROOT],
@@ -129,6 +130,21 @@ describe('User meme CRUD operations', () => {
 			expect(statusCode).toBe(statusCodes.CREATED);
 			expect(message).toBe(responses.memeCreated);
 		});
+
+		test('should return 201 and success message (profane text)', async() => {
+			const { statusCode, body } = await request(app)
+				.post(URL.ROOT + URL.MEMES.ROOT)
+				.field('text', memeCreds.profaneText)
+				.attach('file', 'tests/memePic.jpg')
+				.set('Authorization', `Bearer ${userToken}`);
+
+			const { message, memeId } = body;
+
+			profaneMemeId = memeId;
+
+			expect(statusCode).toBe(statusCodes.CREATED);
+			expect(message).toBe(responses.memeCreated);
+		});
 	});
 
 	describe('GET all memes', () => {
@@ -154,6 +170,16 @@ describe('User meme CRUD operations', () => {
 
 				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('userId', userId);
+			});
+
+			test('should return 200 and meme (profane)', async() => {
+				const { statusCode, body } = await request(app)
+					.get(`${URL.ROOT}${URL.MEMES.ROOT}/${profaneMemeId}`)
+					.set('Authorization', `Bearer ${userToken}`);
+
+				expect(statusCode).toBe(statusCodes.OK);
+				expect(body).toHaveProperty('userId', userId);
+				expect(body).toHaveProperty('likes', -3);
 			});
 		});
 

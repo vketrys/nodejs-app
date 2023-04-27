@@ -13,7 +13,7 @@ describe('User meme CRUD operations', () => {
 
 	let adminMemeId: string | undefined;
 	let newAdminMemeId: string | undefined;
-
+	let profaneMemeId: string | undefined;
 	let userMemeId: string | undefined;
 
 	const reqCases = [
@@ -116,6 +116,21 @@ describe('User meme CRUD operations', () => {
 			expect(body).toBe(responses.missingFile);
 		});
 
+		test('should return 201 and success message (profane text)', async() => {
+			const { statusCode, body } = await request(app)
+				.post(URL.ROOT + URL.MEMES.ROOT)
+				.field('text', memeCreds.profaneText)
+				.attach('file', 'tests/memePic.jpg')
+				.set('Authorization', `Bearer ${userToken}`);
+
+			const { message, memeId } = body;
+
+			profaneMemeId = memeId;
+
+			expect(statusCode).toBe(statusCodes.CREATED);
+			expect(message).toBe(responses.memeCreated);
+		});
+
 		test('should return 201 and success message', async() => {
 			const { statusCode, body } = await request(app)
 				.post(URL.ROOT + URL.MEMES.ROOT)
@@ -143,7 +158,7 @@ describe('User meme CRUD operations', () => {
 
 			expect(statusCode).toBe(statusCodes.OK);
 			expect(body).toHaveProperty('memes');
-			expect(memes).toHaveLength(3);
+			expect(memes).toHaveLength(4);
 			expect(memes[0].userId === adminId || memes[0].userId === userId).toBeTruthy();
 			expect(memes[1].userId === adminId || memes[1].userId === userId).toBeTruthy();
 		});
@@ -160,6 +175,16 @@ describe('User meme CRUD operations', () => {
 
 				expect(statusCode).toBe(statusCodes.OK);
 				expect(body).toHaveProperty('userId', adminId);
+			});
+
+			test('should return 200 and meme (profane)', async() => {
+				const { statusCode, body } = await request(app)
+					.get(`${URL.ROOT}${URL.MEMES.ROOT}/${profaneMemeId}`)
+					.set('Authorization', `Bearer ${userToken}`);
+
+				expect(statusCode).toBe(statusCodes.OK);
+				expect(body).toHaveProperty('userId', adminId);
+				expect(body).toHaveProperty('likes', -3);
 			});
 		});
 
