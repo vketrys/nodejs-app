@@ -12,12 +12,12 @@ describe('Admin CRUD operations', () => {
 
 	const reqCases = [
 		['get', URL.ROOT + URL.USERS.ROOT],
-		['get', `${URL.ROOT + URL.USERS.ROOT}/${adminId}`],
-		['get', `${URL.ROOT + URL.USERS.ROOT}/${userId}`],
-		['patch', `${URL.ROOT + URL.USERS.ROOT}/${adminId}`],
-		['patch', `${URL.ROOT + URL.USERS.ROOT}/${userId}`],
-		['delete', `${URL.ROOT + URL.USERS.ROOT}/${adminId}`],
-		['delete', `${URL.ROOT + URL.USERS.ROOT}/${userId}`],
+		['get', `${URL.ROOT}${URL.USERS.ROOT}/${adminId}`],
+		['get', `${URL.ROOT}${URL.USERS.ROOT}/${userId}`],
+		['patch', `${URL.ROOT}${URL.USERS.ROOT}/${adminId}`],
+		['patch', `${URL.ROOT}${URL.USERS.ROOT}/${userId}`],
+		['delete', `${URL.ROOT}${URL.USERS.ROOT}/${adminId}`],
+		['delete', `${URL.ROOT}${URL.USERS.ROOT}/${userId}`],
 	];
 
 	beforeAll(async() => {
@@ -88,7 +88,7 @@ describe('Admin CRUD operations', () => {
 
 			test('should return 500 and error message', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.ROOT + URL.USERS.ROOT}/${adminId}jk`)
+					.get(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}jk`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.INTERNAL_SERVER_ERROR);
@@ -97,7 +97,7 @@ describe('Admin CRUD operations', () => {
 
 			test('should return 200 and user data', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
+					.get(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -109,7 +109,7 @@ describe('Admin CRUD operations', () => {
 
 			test('should return 500 and error message', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.ROOT + URL.USERS.ROOT}/${userId}jk`)
+					.get(`${URL.ROOT}${URL.USERS.ROOT}/${userId}jk`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.INTERNAL_SERVER_ERROR);
@@ -118,7 +118,7 @@ describe('Admin CRUD operations', () => {
 
 			test('should return 200 and user data', async() => {
 				const { statusCode, body } = await request(app)
-					.get(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+					.get(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -133,7 +133,7 @@ describe('Admin CRUD operations', () => {
 
 			test('should return 400 and error message (missing fields)', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
+					.patch(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.admin.updateWrong);
 
@@ -143,7 +143,7 @@ describe('Admin CRUD operations', () => {
 
 			test('should return 200 and new user data', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
+					.patch(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.admin.updateCorrect);
 
@@ -161,7 +161,7 @@ describe('Admin CRUD operations', () => {
 
 			test('should return 400 and error message (missing fields)', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+					.patch(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.user.updateWrong);
 
@@ -171,7 +171,7 @@ describe('Admin CRUD operations', () => {
 
 			test('should return 200 and new user data', async() => {
 				const { statusCode, body } = await request(app)
-					.patch(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+					.patch(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`)
 					.send(userCredentials.user.updateCorrect);
 
@@ -186,13 +186,36 @@ describe('Admin CRUD operations', () => {
 		});
 	});
 
+	describe('PUT words to profane dictionary', () => {
+		
+		test('should return 400 and error message (empty array)', async() => {
+			const { statusCode, body } = await request(app)
+				.put(URL.ROOT + URL.ADMIN.ROOT + URL.ADMIN.PROFANE)
+				.set('Authorization', `Bearer ${userToken}`)
+				.send(userCredentials.profane.wrong);
+
+			expect(statusCode).toBe(statusCodes.BAD_REQUEST);
+			expect(body).toBe(responses.noEmptyArray);
+		});
+
+		test('should return 200 and message', async() => {
+			const { statusCode, body } = await request(app)
+				.put(URL.ROOT + URL.ADMIN.ROOT + URL.ADMIN.PROFANE)
+				.set('Authorization', `Bearer ${userToken}`)
+				.send(userCredentials.profane.correct);
+
+			expect(statusCode).toBe(statusCodes.OK);
+			expect(body).toBe(responses.wordsAdded);
+		});
+	});
+
 	describe('REMOVE user', () => {
 
 		describe('removing other account', () => {
 
 			test('should return 200 and message with email', async() => {
 				const { statusCode, body } = await request(app)
-					.delete(`${URL.ROOT + URL.USERS.ROOT}/${userId}`)
+					.delete(`${URL.ROOT}${URL.USERS.ROOT}/${userId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);
@@ -206,7 +229,7 @@ describe('Admin CRUD operations', () => {
 			
 			test('should return 200 and message with email', async() => {
 				const { statusCode, body } = await request(app)
-					.delete(`${URL.ROOT + URL.USERS.ROOT}/${adminId}`)
+					.delete(`${URL.ROOT}${URL.USERS.ROOT}/${adminId}`)
 					.set('Authorization', `Bearer ${userToken}`);
 
 				expect(statusCode).toBe(statusCodes.OK);

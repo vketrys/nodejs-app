@@ -41,11 +41,20 @@ export const userCredentials = {
 			displayName: 'user updated',
 		},
 	},
+	profane: {
+		wrong: {
+			words: [],
+		},
+		correct: {
+			words: ['profane'],
+		},
+	},
 };
 
 export const memeCreds = {
 	text: 'meme text',
 	textUpdated: 'updated meme text',
+	profaneText: 'meme text xxx',
 	superLike: {
 		count: 10,
 	},

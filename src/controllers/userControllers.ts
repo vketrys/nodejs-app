@@ -63,6 +63,24 @@ export const removeUser = async(req: Request, res: Response) => {
 	}
 };
 
+export const addProfane = async(req: Request, res: Response) => {
+	const { words } = req.body;
+
+	try {
+		if (words.length === 0) {
+			return res.status(statusCodes.BAD_REQUEST).json(responses.noEmptyArray);
+		}
+
+		const profaneWords: string[] = words.map((word: string) => word.toLowerCase());
+
+		await db.collection(Collections.PROFANE).add({ profaneWords });
+
+		return res.status(statusCodes.OK).json(responses.wordsAdded);
+	} catch (err) {
+		return handleError(res, err);
+	}
+};
+
 function mapUser(user: admin.auth.UserRecord) {
 	const customClaims = (user.customClaims || { role: '' }) as { role?: Roles };
 	const role = customClaims.role || '';
