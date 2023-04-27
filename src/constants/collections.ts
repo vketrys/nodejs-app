@@ -1,7 +1,7 @@
 enum Collections {
-  users = 'users',
-  memes = 'memes',
-  likes = 'likes',
+  USERS = 'users',
+  MEMES = 'memes',
+  LIKES = 'likes',
 };
 
 export default Collections;

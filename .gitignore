@@ -1,4 +1,7 @@
 node_modules
 dist
+.env.test
 .env
 service-account-file.json
+coverage
+*.log

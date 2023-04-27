@@ -1,9 +1,9 @@
 import express from 'express';
 import multer from 'multer';
-import { isAuthenticated } from '../functions/isAutheticated.js';
-import { isAuthorized } from '../functions/isAuthorized.js';
-import { isYoursPost } from '../functions/isYoursPost.js';
-import { URL } from '../constants/URL.js';
+import { isAuthenticated } from '../functions/isAutheticated';
+import { isAuthorized } from '../functions/isAuthorized';
+import { isUserId } from '../functions/isUserId';
+import { URL } from '../constants/URL';
 import { 
 	createMeme, 
 	deleteMeme, 
@@ -11,7 +11,7 @@ import {
 	getMeme, 
 	likeMeme, 
 	updateMeme,
-} from '../controllers/memeControllers.js';
+} from '../controllers/memeControllers';
 
 const router = express.Router();
 
@@ -41,13 +41,14 @@ router.put(URL.MEMES.PARAMS, [
 
 router.get(URL.MEMES.PARAMS, [
 	isAuthenticated,
+	isUserId,
 	isAuthorized({ hasRole: ['admin'], allowSameUser: true }),
 	getMeme,
 ]);
 
 router.patch(URL.MEMES.PARAMS, [
 	isAuthenticated,
-	isYoursPost,
+	isUserId,
 	isAuthorized({ hasRole: [], allowSameUser: true }),
 	upload,
 	updateMeme,
@@ -55,7 +56,7 @@ router.patch(URL.MEMES.PARAMS, [
 
 router.delete(URL.MEMES.PARAMS, [
 	isAuthenticated,
-	isYoursPost,
+	isUserId,
 	isAuthorized({ hasRole: ['admin'], allowSameUser: true }),
 	deleteMeme,
 ]);

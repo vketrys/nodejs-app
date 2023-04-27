@@ -1,79 +1,76 @@
-import { 
-	getAuth, 
-	signInWithEmailAndPassword,
-	UserCredential,
-} from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 import { Request, Response } from 'express';
-import app from '../config/firebase.js';
-import { responses } from '../constants/responses.js';
-import { errorCodes, statusCodes } from '../constants/codes.js';
-import { Roles } from '../constants/roles.js';
-import { db } from '../index.js';
-import Collections from '../constants/collections.js';
+import { responses } from '../constants/responses';
+import { errorCodes, statusCodes } from '../constants/codes';
+import { Roles } from '../constants/roles';
+import { auth, db } from '../index';
+import Collections from '../constants/collections';
 
 dotenv.config();
 
 export const signup = async(req: Request, res: Response): Promise<Response> => {
+	const { displayName = '', email, password } = req.body;
+
+	//TODO: setting admin email from Firebase 
+	const role = email === process.env.EXAMPLE_EMAIL || email === process.env.TEST_EMAIL 
+		? Roles.ADMIN 
+		: Roles.USER;
+
+	if (!email || !password) {
+		return res
+			.status(statusCodes.UNPROCESSIBLE_ENTITY)
+			.json(!email ? responses.emailRequired : responses.passwordRequired);
+	}
+
 	try {
-		const { displayName, email, password } = req.body;
-
-		//TODO: setting admin email from Firebase 
-		const role = email === process.env.EXAMPLE_EMAIL ? Roles.admin : Roles.user;
-  
-		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity).send(!email ? responses.emailRequired : responses.passwordRequired);
-		}
-
 		const { uid } = await admin.auth().createUser({
 			displayName,
 			password,
 			email,
 		});
 
-		await db.collection(Collections.users).doc(uid).set({
+		await admin.auth().setCustomUserClaims(uid, { role });
+
+		await db.collection(Collections.USERS).doc(uid).set({
 			email,
 			displayName,
 			role,
 		});
 
-		await admin.auth().setCustomUserClaims(uid, { role });
-
-		return res.status(statusCodes.created).send({ uid, email, role });
+		return res.status(statusCodes.CREATED).json({ uid, email, role });
 	} catch (error) {
 		return res
 			.status(
 				error.code === errorCodes.weakPassword ? 
-					statusCodes.badRequest : 
-					statusCodes.internalServerError,
+					statusCodes.BAD_REQUEST : 
+					statusCodes.INTERNAL_SERVER_ERROR,
 			)
 			.json({ error: error.message });
 	}
 };
 
 export const signin = async(req: Request, res: Response): Promise<Response> => {
-	try {
-		const { email, password } = req.body;
+	const { email, password } = req.body;
   
-		if (!email || !password) {
-			return res.status(statusCodes.unprocessableEntity).json({
-				email: responses.emailRequired,
-				password: responses.passwordRequired,
-			});
-		}
-  
-		const auth = getAuth(app);
-  
-		const user: UserCredential = await signInWithEmailAndPassword(auth, email, password);
+	if (!email || !password) {
+		return res
+			.status(statusCodes.UNPROCESSIBLE_ENTITY)
+			.json(!email ? responses.emailRequired : responses.passwordRequired);
+	}
+	
+	try {    
+		await signInWithEmailAndPassword(auth, email, password);
+		const jwtToken = await auth.currentUser.getIdToken();
 
-		return res.status(statusCodes.ok).json(user);
+		return res.status(statusCodes.OK).json(jwtToken);
 	} catch (error) {
 		return res
 			.status(
 				error.code === errorCodes.wrongPassword ? 
-					statusCodes.badRequest : 
-					statusCodes.internalServerError,
+					statusCodes.BAD_REQUEST : 
+					statusCodes.INTERNAL_SERVER_ERROR,
 			)
 			.json({ error: error.message });
 	}

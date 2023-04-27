@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { ref, uploadBytes, deleteObject } from 'firebase/storage';
 import admin from 'firebase-admin';
-import { db, storage } from '../index.js';
-import { statusCodes } from '../constants/codes.js';
-import { Roles } from '../constants/roles.js';
-import handleError from '../utils/handleError.js';
-import { responses } from '../constants/responses.js';
-import Collections from '../constants/collections.js';
+import { db, storage } from '../index';
+import { statusCodes } from '../constants/codes';
+import { Roles } from '../constants/roles';
+import handleError from '../utils/handleError';
+import { responses } from '../constants/responses';
+import Collections from '../constants/collections';
 
 export const createMeme = async(req: Request, res: Response) => {
 	const { text } = req.body;
@@ -14,14 +14,14 @@ export const createMeme = async(req: Request, res: Response) => {
 
 	const { uid } = res.locals;
 
-	if (!req.file) {
-		return res.status(statusCodes.badRequest).send({ message: responses.missingFile });
+	if (!file) {
+		return res.status(statusCodes.BAD_REQUEST).json(responses.missingFile);
 	}
 
 	const fileType = file.originalname.split('.').at(-1);
 
 	try {
-		const memeRef = await db.collection(Collections.memes).add({
+		const memeRef = await db.collection(Collections.MEMES).add({
 			text,
 			isPublished: false,
 			likes: 0,
@@ -37,11 +37,11 @@ export const createMeme = async(req: Request, res: Response) => {
 		const snapshot = await uploadBytes(mediaRef, file.buffer);
 		const downloadURL = snapshot.ref.fullPath;
 
-		await db.collection(Collections.memes).doc(memeId).set({
+		await db.collection(Collections.MEMES).doc(memeId).set({
 			mediaURL: downloadURL,
 		}, { merge: true });
 
-		return res.status(statusCodes.created).send({ message: responses.memeCreated });
+		return res.status(statusCodes.CREATED).json({ message: responses.memeCreated, memeId});
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -51,13 +51,17 @@ export const getAllMemes = async(req: Request, res: Response) => {
 	const { role } = res.locals;
 
 	try {
-		const memesRef = role === Roles.admin ? 
-			db.collection(Collections.memes) : 
-			db.collection(Collections.memes).where('isPublished', '==', true);
+		const memesRef = role === Roles.ADMIN ? 
+			db.collection(Collections.MEMES) : 
+			db.collection(Collections.MEMES).where('isPublished', '==', true);
 
 		const memesSnapshot = await memesRef.get();
 
-		return res.status(statusCodes.ok).send(memesSnapshot.docs.map((doc) => doc.data()));
+		if (memesSnapshot.size < 1) {
+			return res.status(statusCodes.OK).json(responses.memesUnpublished);
+		}
+
+		return res.status(statusCodes.OK).json({ memes: memesSnapshot.docs.map((doc) => doc.data()) });
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -69,9 +73,9 @@ export const likeMeme = async(req: Request, res: Response) => {
 	const { count } = req.body;
 
 	try {
-		const likeRef = db.collection(Collections.memes).doc(memeId).collection(Collections.likes);
+		const likeRef = db.collection(Collections.MEMES).doc(memeId).collection(Collections.LIKES);
 
-		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeRef = db.collection(Collections.MEMES).doc(memeId);
 		const increment = admin.firestore.FieldValue.increment(count || 1);
 		const decrement = admin.firestore.FieldValue.increment(-count || -1);
 
@@ -79,9 +83,7 @@ export const likeMeme = async(req: Request, res: Response) => {
 		const likeSnap = await likeQuery.get();
 
 		if (likeSnap.docs.length === 0) {
-			await likeRef.add({
-				uid,
-			});
+			await likeRef.add({ uid });
 
 			await memeRef.update({ likes: increment });
 		} else {
@@ -89,10 +91,10 @@ export const likeMeme = async(req: Request, res: Response) => {
 			likeSnap.docs.forEach((doc) => doc.ref.delete());
 			await memeRef.update({ likes: decrement });
 
-			return res.status(statusCodes.forbidden).send({ message: responses.memeUnrated });
+			return res.status(statusCodes.OK).json(responses.memeUnrated);
 		}
 
-		return res.status(statusCodes.ok).send({ message: responses.memeRated });
+		return res.status(statusCodes.OK).json(responses.memeRated);
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -102,11 +104,11 @@ export const getMeme = async(req: Request, res: Response) => {
 	const { memeId } = req.params;
 
 	try {
-		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeRef = db.collection(Collections.MEMES).doc(memeId);
 
 		const memeSnapshot = await memeRef.get();
 
-		return res.status(statusCodes.ok).send(memeSnapshot.data());
+		return res.status(statusCodes.OK).json(memeSnapshot.data());
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -118,10 +120,16 @@ export const updateMeme = async(req: Request, res: Response) => {
 	const { text } = req.body;
 	const file = req.file;
 
-	const fileType = file.originalname.split('.').at(-1);
-
 	try {
-		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeRef = db.collection(Collections.MEMES).doc(memeId);
+
+		if (!file) {
+			await memeRef.update({ text });
+			return res.status(statusCodes.OK).json(responses.memeUpdated);
+		}
+
+		const fileType = file.originalname.split('.').at(-1);
+
 		const memeSnap = await memeRef.get();
 		const currentFileName = await memeSnap.data().mediaURL;
 
@@ -139,7 +147,7 @@ export const updateMeme = async(req: Request, res: Response) => {
 			mediaURL,
 		 });
 
-		return res.status(statusCodes.ok).send({ message: responses.memeUpdated });
+		return res.status(statusCodes.OK).json(responses.memeUpdated);
 	} catch (error) {
 		return handleError(res, error);
 	}
@@ -149,7 +157,7 @@ export const deleteMeme = async(req: Request, res: Response) => {
 	const { memeId } = req.params;
 
 	try {
-		const memeRef = db.collection(Collections.memes).doc(memeId);
+		const memeRef = db.collection(Collections.MEMES).doc(memeId);
 		const memeSnap = await memeRef.get();
 		const fileName = await memeSnap.data().mediaURL;
 
@@ -159,7 +167,7 @@ export const deleteMeme = async(req: Request, res: Response) => {
 
 		await memeRef.delete();
 
-		return res.status(statusCodes.ok).send({ message: responses.memeDeleted });
+		return res.status(statusCodes.OK).json(responses.memeDeleted);
 	} catch (error) {
 		return handleError(res, error);
 	}

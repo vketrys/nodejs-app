@@ -1,59 +1,63 @@
 import { Request, Response } from 'express';
 import admin from 'firebase-admin';
-import handleError from '../utils/handleError.js';
-import { statusCodes } from '../constants/codes.js';
-import { responses } from '../constants/responses.js';
-import { Roles } from '../constants/roles.js';
+import handleError from '../utils/handleError';
+import { statusCodes } from '../constants/codes';
+import { responses } from '../constants/responses';
+import { Roles } from '../constants/roles';
+import { db } from '../index';
+import Collections from '../constants/collections';
 
-export const getAll = async(req: Request, res: Response) => {
+export const getAllUsers = async(req: Request, res: Response) => {
 	try {
 		const listUsers = await admin.auth().listUsers();
 		const users = listUsers.users.map(mapUser);
 
-		return res.status(statusCodes.ok).send({ users });
+		return res.status(statusCodes.OK).json({ users });
 	} catch (err) {
 		return handleError(res, err);
 	}
 };
 
-export const get = async(req: Request, res: Response) => {
+export const getUser = async(req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
 		const user = await admin.auth().getUser(id);
 
-		return res.status(statusCodes.ok).send({ user: mapUser(user) });
+		return res.status(statusCodes.OK).json(mapUser(user));
 	} catch (error) {
 		return handleError(res, error);
 	}
 };
 
-export const update = async(req: Request, res: Response) => {
+export const updateUser = async(req: Request, res: Response) => {
 	const { id } = req.params;
-	const { displayName, password, email } = req.body;
+	const { displayName, password } = req.body;
 	
 	try {
-		if (!displayName || !password || !email) {
-			return res.status(statusCodes.badRequest).send({ message: responses.missingFields });
+		if (!displayName || !password) {
+			return res.status(statusCodes.BAD_REQUEST).json(responses.missingFields);
 		}
 
-		await admin.auth().updateUser(id, { displayName, password, email });
+		await admin.auth().updateUser(id, { displayName, password });
+		await db.collection(Collections.USERS).doc(id).update({ displayName });
 		const user = await admin.auth().getUser(id);
 
-		return res.status(statusCodes.ok).send({ user: mapUser(user) });
+		return res.status(statusCodes.OK).json(mapUser(user));
 	} catch (error) {
 		return handleError(res, error);
 	}
 };
 
-export const remove = async(req: Request, res: Response) => {
+export const removeUser = async(req: Request, res: Response) => {
 	const { id } = req.params;
 
 	try {
 		const { email } = await admin.auth().getUser(id);
 
 		await admin.auth().deleteUser(id);
+		await db.collection(Collections.USERS).doc(id).delete();
 
-		return res.status(statusCodes.ok).send({ message: `${email} ${responses.userRemoved}` });
+		return res.status(statusCodes.OK).json(`${email} ${responses.userRemoved}`);
 	} catch (err) {
 		return handleError(res, err);
 	}

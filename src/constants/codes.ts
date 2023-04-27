@@ -1,15 +1,17 @@
 export const errorCodes = {
 	weakPassword: 'auth/weak-password',
 	wrongPassword: 'auth/wrong-password',
+	wrongUserID: 'auth/user-not-found',
 };
 
 export const statusCodes = {
-	unprocessableEntity: 422,
-	forbidden: 403,
-	unauthorized: 401,
-	badRequest: 400,
-	ok: 200,
-	created: 201,
-	noContent: 204,
-	internalServerError: 500,
+	INVALID_TOKEN: 498,
+	UNPROCESSIBLE_ENTITY: 422,
+	FORBIDDEN: 403,
+	UNAUTHORIZED: 401,
+	BAD_REQUEST: 400,
+	OK: 200,
+	CREATED: 201,
+	NO_CONTENT: 204,
+	INTERNAL_SERVER_ERROR: 500,
 };
